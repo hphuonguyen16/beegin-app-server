@@ -1,6 +1,6 @@
-import mongoose, { Schema, InferSchemaType } from 'mongoose';
+const mongoose = require("mongoose");
 
-const SharePostschema = new Schema({
+const SharePostschema = new mongoose.Schema({
   sharer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // Reference to the User model

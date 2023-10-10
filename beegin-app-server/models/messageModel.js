@@ -1,6 +1,6 @@
-import mongoose, { Schema, InferSchemaType } from 'mongoose';
+const mongoose = require("mongoose");
 
-const Messageschema = new Schema({
+const Messageschema = new mongoose.Schema({
   sender: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // Reference to the User model

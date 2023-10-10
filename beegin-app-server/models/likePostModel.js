@@ -1,6 +1,7 @@
-import mongoose, { Schema, InferSchemaType } from "mongoose";
+const mongoose = require("mongoose");
 
-const LikePostschema = new Schema({
+
+const LikePostschema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User", // Reference to the User model

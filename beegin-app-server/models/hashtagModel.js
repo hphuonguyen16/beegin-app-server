@@ -1,6 +1,7 @@
-import mongoose, { Schema, InferSchemaType } from "mongoose";
+const mongoose = require("mongoose");
 
-const HashtagSchema = new Schema({
+
+const HashtagSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please provide a Hashtag name"],
