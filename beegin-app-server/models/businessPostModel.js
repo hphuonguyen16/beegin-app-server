@@ -1,7 +1,7 @@
-import mongoose, { Schema, InferSchemaType } from 'mongoose';
+const mongoose = require("mongoose");
 import { PostModel } from './postModel';
 
-const BusinessPostschema = new Schema({
+const BusinessPostschema = new mongoose.Schema({
   price: Number,
   status: {
     type: String,

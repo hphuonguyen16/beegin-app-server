@@ -1,6 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+const mongoose = require("mongoose");
 
-const CategoryPostSchema = new Schema({
+
+const CategoryPostSchema = new mongoose.Schema({
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category", // Reference to the Category model

@@ -1,6 +1,6 @@
-import mongoose, { Schema, InferSchemaType } from 'mongoose';
+const mongoose = require("mongoose");
 
-const Postschema = new Schema({
+const Postschema = new mongoose.Schema({
   title: String,
   content: String,
   images: [

@@ -1,6 +1,6 @@
-import mongoose, { Schema, InferSchemaType } from 'mongoose';
+const mongoose = require("mongoose");
 
-const Profileschema = new Schema({
+const Profileschema = new mongoose.Schema({
   firstname: {
     type: String,
     required: [true, 'Please tell us your first name!'],

@@ -1,6 +1,6 @@
-import mongoose, { Schema, InferSchemaType } from "mongoose";
+const mongoose = require("mongoose");
 
-const CommentLikeSchema = new Schema({
+const CommentLikeSchema = new mongoose.Schema({
   comment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Comment", // Reference to the Comment model

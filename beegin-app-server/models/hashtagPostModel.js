@@ -1,6 +1,7 @@
-import mongoose, { Schema, InferSchemaType } from "mongoose";
+const mongoose = require("mongoose");
 
-const HashtagPostschema = new Schema({
+
+const HashtagPostschema = new mongoose.Schema({
   hashtag: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hashtag", // Reference to the Hashtag model

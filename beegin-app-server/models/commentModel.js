@@ -1,6 +1,7 @@
-import mongoose, { Schema, InferSchemaType } from "mongoose";
+const mongoose = require("mongoose");
 
-const CommentSchema = new Schema({
+
+const CommentSchema = new mongoose.Schema({
   content: {
     type: String,
     required: [true, "Please provide a Comment name"],
