@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
       ref: "Category", // Reference to the Category model
     },
   ],
+  profile: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Profile", // Reference to the Profile model
+  },
   createdAt: {
     type: Date,
     default: Date.now,

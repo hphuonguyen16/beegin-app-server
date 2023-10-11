@@ -12,9 +12,16 @@ const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 const userRouter = require("./routes/userRoutes");
 const followRouter = require("./routes/followRoutes");
-
+const cors = require("cors");
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Replace with the origin of your client application
+    credentials: true, // Allow credentials (cookies) to be sent
+  })
+);
 
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
@@ -74,7 +81,6 @@ app.use((req, res, next) => {
 // 3) ROUTES
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/follows", followRouter);
-
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
