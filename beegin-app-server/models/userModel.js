@@ -4,10 +4,10 @@ const validator = require("validator");
 const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Please tell us your name!"],
-  },
+  // name: {
+  //   type: String,
+  //   required: [true, "Please tell us your name!"],
+  // },
   email: {
     type: String,
     required: [true, "Please provide your email"],
@@ -49,6 +49,7 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Profile", // Reference to the Profile model
   },
+  refreshToken: String,
   createdAt: {
     type: Date,
     default: Date.now,
@@ -76,7 +77,7 @@ userSchema.pre("save", function (next) {
 
 userSchema.pre(/^find/, function (next) {
   // this points to the current query
-  this.find({ active: { $ne: false } });
+  this.find({ active: { $ne: false } }).select("-refreshtoken");
   next();
 });
 
