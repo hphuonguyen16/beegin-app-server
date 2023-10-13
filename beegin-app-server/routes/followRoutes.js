@@ -12,6 +12,7 @@ router.post('/followingOtherUser', followController.followingOtherUser);
 router.get('/getAllFollowings/:id', followController.getAllFollowings);
 router.get('/getAllFollowers/:id', followController.getAllFollowers);
 router.delete('/unfollow/:followingId', followController.unfollow);
+router.get('/getNumberOfFollows/:id', followController.getNumberOfFollows);
 
 
 
