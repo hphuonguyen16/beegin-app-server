@@ -29,10 +29,10 @@ const Postschema = new mongoose.Schema({
     ref: 'User', // Reference to the User model
     required: [true, 'A post must belong to a user'],
   },
-  sharedpost: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Post', // Reference to the Post model
-  },
+  // sharedpost: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Post', // Reference to the Post model
+  // },
   numLikes: {
     type: Number,
     default: 0,
