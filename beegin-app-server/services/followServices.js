@@ -7,6 +7,9 @@ exports.followingOtherUser = (followingId,id) => {
             if (!followingId){
                reject(new AppError(`You haven't chosen who you want to follow`, 400));
             }
+            else if (id === followingId ) {
+                 reject(new AppError(`Bad request`, 400));
+            }
             else {
                 let check = await isFollowing(id, followingId);
                 if (check) {
@@ -82,9 +85,7 @@ exports.unfollow = (id,followingId) => {
             else {
                 let check = await isFollowing(id, followingId);
                 if (!check) {
-                    reject({
-                        message:`You don't follow this person yet`
-                    })
+                    reject(new AppError(`You don't follow this person yet`, 400));
                 }
                 else {
                     await FollowModel.deleteOne({follower:id,following:followingId});
@@ -93,6 +94,28 @@ exports.unfollow = (id,followingId) => {
                     })
                 }     
             }
+        } catch (error) {
+            reject(error);
+        }
+    })
+};
+exports.getNumberOfFollows = (id) => {
+   return new Promise(async (resolve, reject) =>{
+        try {
+            if (!id){
+               reject(new AppError(`Missing parameter`, 400));
+            }
+            else {
+                const NumberOfFollowing = await FollowModel.countDocuments({ follower: id });
+                const NumberOfFollower = await FollowModel.countDocuments({ following: id });
+                resolve({
+                    status: 'Success',
+                    data: ({
+                        NumberOfFollower: NumberOfFollower,
+                        NumberOfFollowing: NumberOfFollowing
+                        })
+                    })
+                }     
         } catch (error) {
             reject(error);
         }

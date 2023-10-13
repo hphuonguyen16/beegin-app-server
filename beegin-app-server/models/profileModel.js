@@ -14,6 +14,7 @@ const Profileschema = new mongoose.Schema({
     required: [true, "Please tell us your gender"],
   },
   avatar: String,
+  background: String,
   address: String,
   bio: String,
   birthday: Date,
