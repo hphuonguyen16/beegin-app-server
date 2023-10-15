@@ -50,6 +50,11 @@ const userSchema = new mongoose.Schema({
     ref: "Profile", // Reference to the Profile model
   },
   refreshToken: String,
+  verifyToken: String,
+  verify: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
