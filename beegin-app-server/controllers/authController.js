@@ -96,39 +96,43 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    phonenumber: req.body.phonenumber,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-    role: req.body.role,
-  });
+// exports.signup = catchAsync(async (req, res, next) => {
+//   const newUser = await User.create({
+//     name: req.body.name,
+//     email: req.body.email,
+//     phonenumber: req.body.phonenumber,
+//     password: req.body.password,
+//     passwordConfirm: req.body.passwordConfirm,
+//     role: req.body.role,
+//   });
 
-  await createSendToken(newUser, 201, res);
+//   await createSendToken(newUser, 201, res);
+// });
+
+exports.verifyEmail = catchAsync(async (req, res, next) => {
+  console.log(req.params.id);
+  await authService.verifyToken(req.params.id);
+  res.status(200).json({
+    status: "success",
+    message: "Your account has been verified.",
+  });
 });
 
 exports.signup1 = catchAsync(async (req, res) => {
   const profile = await authService.signup(req.body);
-  createSendToken(profile, 201, res);
+  res.status(201).json({
+    status: "success",
+    data: {
+      profile,
+    },
+    message:
+      "An email has been sent to your email address. Please verify your email address to continue.",
+  });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-
-  // 1) Check if email and password exist
-  if (!email || !password) {
-    return next(new AppError("Please provide email and password!", 400));
-  }
-  // 2) Check if user exists && password is correct
-  const user = await User.findOne({ email }).select("+password");
-
-  if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError("Incorrect email or password", 401));
-  }
-
-  // 3) If everything ok, send token to client
+  const user = await authService.login({ email, password });
   await createSendToken(user, 200, res);
 });
 
