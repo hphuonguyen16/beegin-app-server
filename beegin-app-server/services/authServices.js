@@ -6,15 +6,6 @@ const sendEmail = require("./../utils/sendEmail");
 exports.signup = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(data);
-      console.log(
-        data.email,
-        data.password,
-        data.passwordConfirm,
-        data.firstname,
-        data.lastname,
-        data.gender
-      );
       if (
         !data.email ||
         !data.password ||
@@ -23,9 +14,9 @@ exports.signup = (data) => {
         !data.lastname ||
         data.gender === undefined
       ) {
-        reject(new AppError("Missing parameter", 400));
+        reject(new AppError("Please fill in all required fields", 400));
       } else if (data.password !== data.passwordConfirm) {
-        reject(new AppError("Confirmation password is incorrect", 400));
+        reject(new AppError("Password confirmation is incorrect", 400));
       } else {
         const verifyToken = crypto.randomBytes(32).toString("hex");
         const user = await UserModel.create({
@@ -46,9 +37,7 @@ exports.signup = (data) => {
           birthday: data.birthday,
           user: user.id,
         });
-        console.log(user);
         const url = `${process.env.CLIENT_URL}/verify/${user._id}/${verifyToken}`;
-        console.log(url);
         await sendEmail(user.email, "Email Verification", url);
         resolve(profile);
       }
@@ -67,8 +56,6 @@ exports.login = (data) => {
       }
       // 2) Check if user exists && password is correct
       const user = await UserModel.findOne({ email }).select("+password");
-
-      console.log(user);
 
       if (!user || !(await user.correctPassword(password, user.password))) {
         reject(new AppError("Incorrect email or password", 401));
