@@ -7,14 +7,18 @@ const router = express.Router();
 
 // Protect all routes after this middleware
 router.use(authController.protect);
-
-router.post('/followingOtherUser', followController.followingOtherUser);
+// other user
 router.get('/getAllFollowings/:id', followController.getAllFollowings);
 router.get('/getAllFollowers/:id', followController.getAllFollowers);
-router.delete('/unfollow/:followingId', followController.unfollow);
 router.get('/getNumberOfFollows/:id', followController.getNumberOfFollows);
 
+//me
 
+router.get('/getMyFollowerList', followController.getMyFollowerList);
+router.get('/getMyFollowingList', followController.getMyFollowingList)
+router.delete('/unfollow/:followingId', followController.unfollow);
+router.post('/followingOtherUser', followController.followingOtherUser);
+router.get('/getMyNumberOfFollows', followController.getMyNumberOfFollows);
 
 
 
