@@ -28,7 +28,28 @@ exports.unfollow = catchAsync(async(req, res, next) => {
         )
 });
 exports.getNumberOfFollows = catchAsync(async(req, res, next) => {
-    const data = await followService.getNumberOfFollows(req.params.id,);
+    const data = await followService.getNumberOfFollows(req.params.id);
+        return res.status(200).json(
+            data
+        )
+});
+
+exports.getMyFollowingList = catchAsync(async(req, res, next) => {
+    const data = await followService.getAllFollowings(req.user.id);
+        return res.status(200).json(
+            data
+        )
+
+});
+exports.getMyFollowerList = catchAsync(async (req, res, next) => {
+    const data = await followService.getAllFollowers(req.user.id)
+        return res.status(200).json(
+            data
+        )
+    
+});
+exports.getMyNumberOfFollows = catchAsync(async(req, res, next) => {
+    const data = await followService.getNumberOfFollows(req.user.id);
         return res.status(200).json(
             data
         )
