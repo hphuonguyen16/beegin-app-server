@@ -1,4 +1,5 @@
 const FollowModel = require('./../models/followModel');
+const ProfileModel = require('./../models/profileModel');
 const AppError = require('./../utils/appError');
 
 exports.followingOtherUser = (followingId,id) => {
@@ -47,11 +48,17 @@ exports.getAllFollowings = (id) => {
                 reject(new AppError(`Missing parameter`, 400));
             }
             else {
-                let listFollowing = await FollowModel.find({follower:id});
+                let data = await FollowModel.find({ follower: id });
+                let listFollowing = [];
+                for (const follow of data) {
+                    let following = await ProfileModel.find({ user: follow.following }).select('firstname lastname avatar');
+                    listFollowing.push(following);
+                }
                 resolve({
                     status: 'Success',
-                    data:listFollowing
-                })
+                    data: listFollowing
+                });
+
             }    
         } catch (error) {
             reject(error);
@@ -65,7 +72,12 @@ exports.getAllFollowers = (id) => {
                reject(new AppError(`Missing parameter`, 400));
             }
             else {
-                let listFollower = await FollowModel.find({following:id});
+                let data = await FollowModel.find({following:id});
+                let listFollower = [];
+                for (const follow of data) {
+                    let follower = await ProfileModel.find({ user: follow.follower }).select('firstname lastname avatar');
+                    listFollower.push(follower);
+                }
                 resolve({
                     status: 'Success',
                     data:listFollower
