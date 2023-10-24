@@ -33,7 +33,9 @@ const CommentSchema = new mongoose.Schema({
 
 CommentSchema.statics.setNumComments = async function (postId) {
   let numComments = 0;
-  numComments = await this.countDocuments({ post: postId });
+  if (postId) {
+    numComments = await this.countDocuments({ post: postId });
+  }
   await Post.findByIdAndUpdate(postId, { numComments: numComments });
 };
 
@@ -45,14 +47,34 @@ CommentSchema.post("save", async function (doc, next) {
   next();
 });
 
+CommentSchema.pre(/^findOneAndDelete/, async function (next) {
+  this.deletedComment = await this.model.findOne(this.getFilter());
+  console.log(this.deletedComment);
+  next();
+});
 //update numComments of Post when a comment is deleted
-CommentSchema.post(/^findByIdAndDelete/, async function (doc, next) {
+CommentSchema.post(/^findOneAndDelete/, async function (doc, next) {
   if (doc) {
-    await doc.constructor.setNumComments(doc.post);
+    await this.deletedComment.constructor.setNumComments(
+      this.deletedComment.post
+    );
   }
   next();
 });
 
+//populate profile when query
+CommentSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "user",
+    select: "_id email profile",
+    populate: {
+      path: "profile",
+      model: "Profile",
+      select: "name avatar fullname",
+    },
+  });
+  next();
+});
 const CommentModel = mongoose.model("Comment", CommentSchema);
 
 module.exports = CommentModel;

@@ -1,17 +1,17 @@
 const mongoose = require("mongoose");
 
-const Postschema = new mongoose.Schema({
-  title: String,
+const PostSchema = new mongoose.Schema({
+  // title: String,
   content: String,
   images: [
     {
       type: String,
-      maxlength: [4, 'A post can only have up to 4 image'],
+      maxlength: [4, "A post can only have up to 4 image"],
     },
   ],
   imageVideo: {
     type: String,
-    maxlength: [1, 'A post can only have up to 1 video'],
+    maxlength: [1, "A post can only have up to 1 video"],
   },
   categories: [
     //embedd category in post
@@ -26,8 +26,8 @@ const Postschema = new mongoose.Schema({
   ],
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
-    required: [true, 'A post must belong to a user'],
+    ref: "User", // Reference to the User model
+    required: [true, "A post must belong to a user"],
   },
   // sharedpost: {
   //   type: mongoose.Schema.Types.ObjectId,
@@ -51,6 +51,6 @@ const Postschema = new mongoose.Schema({
   },
 });
 
-const PostModel = mongoose.model('Post', Postschema);
+const PostModel = mongoose.model("Post", PostSchema);
 
 module.exports = PostModel;

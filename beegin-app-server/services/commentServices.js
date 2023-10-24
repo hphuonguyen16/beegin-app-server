@@ -6,15 +6,15 @@ const CommentLike = require("./../models/commentLikeModel");
 exports.createComment = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const post = await Post.findById(data.postId);
+      const post = await Post.findById(data.post);
       if (!post) {
-        reject(new AppError(`Post with id ${data.postId} is no longer exist`));
+        reject(new AppError(`Post with id ${data.post} is no longer exist`));
       }
 
       const comment = await Comment.create({
         content: data.content,
         user: data.user,
-        post: data.postId,
+        post: data.post,
       });
 
       resolve({
@@ -78,6 +78,12 @@ exports.getComment = (id) => {
 exports.updateComment = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
+      const checkComment = await Comment.findById(id);
+      if (checkComment.user.id !== data.user) {
+        reject(
+          new AppError(`You do not have permission to update this comment`, 403)
+        );
+      }
       const comment = await Comment.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true,
@@ -89,7 +95,7 @@ exports.updateComment = (id, data) => {
 
       resolve({
         status: "success",
-        data: comments,
+        data: comment,
       });
     } catch (err) {
       reject(err);
@@ -97,13 +103,19 @@ exports.updateComment = (id, data) => {
   });
 };
 
-exports.deleteComment = (id) => {
+exports.deleteComment = (id, user) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const comment = await Comment.findByIdAndDelete(id);
-      if (!comment) {
+      const checkComment = await Comment.findById(id);
+      if (!checkComment) {
         reject(new AppError(`Comment not found`, 404));
       }
+      if (checkComment.user.id !== user) {
+        reject(
+          new AppError(`You do not have permission to update this comment`, 403)
+        );
+      }
+      const comment = await Comment.findOneAndDelete({ _id: id });
 
       resolve({
         status: "success",
@@ -128,6 +140,10 @@ exports.likeComment = (commentId, userId) => {
         comment: commentId,
         user: userId,
       });
+      resolve({
+        status: "success",
+        data: commentLike,
+      });
     } catch (err) {
       reject(err);
     }
@@ -137,7 +153,7 @@ exports.likeComment = (commentId, userId) => {
 exports.unlikeComment = (commentId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      await CommentLike.deleteOne({ user: userId, comment: commentId });
+      await CommentLike.findOneAndDelete({ user: userId, comment: commentId });
       resolve({
         status: "sucess",
       });

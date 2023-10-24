@@ -23,23 +23,26 @@ exports.getComment = catchAsync(async (req, res, next) => {
 });
 
 exports.updateComment = catchAsync(async (req, res, next) => {
+  //set userid to check if having permission to update comment
+  if (!req.body.user) req.body.user = req.user.id;
   const data = await commentServices.updateComment(req.params.id, req.body);
   res.status(200).json(data);
 });
 
 exports.deleteComment = catchAsync(async (req, res, next) => {
-  await commentServices.deleteComment(req.params.id);
+  //set userid to check if having permission to delete comment
+  const data = await commentServices.deleteComment(req.params.id, req.user.id);
   res.status(202).json({
     status: "success",
   });
 });
 
-exports.likeComment = cactchAsync(async (req, res, next) => {
+exports.likeComment = catchAsync(async (req, res, next) => {
   const data = await commentServices.likeComment(req.params.id, req.body.user);
   res.status(201).json(data);
 });
 
-exports.unlikeComment = cactchAsync(async (req, res, next) => {
+exports.unlikeComment = catchAsync(async (req, res, next) => {
   const data = await commentServices.unlikeComment(
     req.params.id,
     req.body.user

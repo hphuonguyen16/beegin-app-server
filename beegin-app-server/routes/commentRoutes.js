@@ -10,7 +10,7 @@ router
   .route("/")
   .get(commentController.setUserPostId, commentController.getCommentsOfPost)
   .post(
-    authController.restrictTo("user"),
+    // authController.restrictTo("user"),
     commentController.setUserPostId,
     commentController.createComment
   );
@@ -23,7 +23,7 @@ router
     commentController.updateComment
   )
   .delete(
-    authController.restrictTo("user", "admin"),
+    authController.restrictTo("user", "bussiness", "admin"),
     commentController.deleteComment
   );
 
@@ -36,6 +36,7 @@ router
   )
   .delete(
     authController.restrictTo("user", "business"),
+    commentController.setUserPostId,
     commentController.unlikeComment
   );
 
