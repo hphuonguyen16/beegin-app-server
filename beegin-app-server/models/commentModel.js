@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+const Post = require("./postModel");
 
 const CommentSchema = new mongoose.Schema({
   content: {
@@ -30,6 +31,50 @@ const CommentSchema = new mongoose.Schema({
   },
 });
 
+CommentSchema.statics.setNumComments = async function (postId) {
+  let numComments = 0;
+  if (postId) {
+    numComments = await this.countDocuments({ post: postId });
+  }
+  await Post.findByIdAndUpdate(postId, { numComments: numComments });
+};
+
+//update numComments of Post when a comment is created
+CommentSchema.post("save", async function (doc, next) {
+  if (doc) {
+    await doc.constructor.setNumComments(doc.post);
+  }
+  next();
+});
+
+CommentSchema.pre(/^findOneAndDelete/, async function (next) {
+  this.deletedComment = await this.model.findOne(this.getFilter());
+  console.log(this.deletedComment);
+  next();
+});
+//update numComments of Post when a comment is deleted
+CommentSchema.post(/^findOneAndDelete/, async function (doc, next) {
+  if (doc) {
+    await this.deletedComment.constructor.setNumComments(
+      this.deletedComment.post
+    );
+  }
+  next();
+});
+
+//populate profile when query
+CommentSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "user",
+    select: "_id email profile",
+    populate: {
+      path: "profile",
+      model: "Profile",
+      select: "name avatar fullname",
+    },
+  });
+  next();
+});
 const CommentModel = mongoose.model("Comment", CommentSchema);
 
 module.exports = CommentModel;
