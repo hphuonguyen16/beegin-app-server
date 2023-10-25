@@ -2,6 +2,16 @@ const Post = require("./../models/postModel");
 const LikePost = require("./../models/likePostModel");
 const AppError = require("./../utils/appError");
 
+const checkPost = async (postId, reject) => {
+  const post = await Post.findById(postId);
+  if (!post) {
+    reject(new AppError(`Post not found`, 404));
+  } else if (!post.isActived) {
+    reject(new AppError(`This post is longer existed`, 404));
+  } else {
+    return true;
+  }
+};
 exports.createPost = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -25,24 +35,25 @@ exports.createPost = (data) => {
 exports.deletePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const post = await Post.findById(postId);
-      if (!post) {
-        reject(new AppError(`Post not found`, 404));
+      // const post = await Post.findById(postId);
+      // if (!post) {
+      //   reject(new AppError(`Post not found`, 404));
+      // }
+
+      // if (!post.isActived) {
+      //   reject(new AppError(`This post is longer existed`, 404));
+      // }
+      if ((await checkPost(postId, reject)) === true) {
+        const doc = await Post.findByIdAndUpdate(postId, { isActived: false });
+
+        if (!doc) {
+          reject(new AppError(`You did not like this post before`, 400));
+        }
+
+        resolve({
+          status: "success",
+        });
       }
-
-      if (!post.isActived) {
-        reject(new AppError(`This post is longer existed`, 404));
-      }
-
-      const doc = await Post.findByIdAndUpdate(postId, { isActived: false });
-
-      if (!doc) {
-        reject(new AppError(`You did not like this post before`, 400));
-      }
-
-      resolve({
-        status: "success",
-      });
     } catch (err) {
       reject(err);
     }
@@ -78,24 +89,25 @@ exports.getPostById = (id) => {
 exports.likePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const post = await Post.findById(postId);
-      if (!post) {
-        reject(new AppError(`Post not found`, 404));
+      // const post = await Post.findById(postId);
+      // if (!post) {
+      //   reject(new AppError(`Post not found`, 404));
+      // }
+
+      // if (!post.isActived) {
+      //   reject(new AppError(`This post is longer existed`, 404));
+      // }
+      if ((await checkPost(postId, reject)) === true) {
+        const likePost = await LikePost.create({
+          post: postId,
+          user: userId,
+        });
+
+        resolve({
+          status: "success",
+          data: likePost,
+        });
       }
-
-      if (!post.isActived) {
-        reject(new AppError(`This post is longer existed`, 404));
-      }
-
-      const likePost = await LikePost.create({
-        post: postId,
-        user: userId,
-      });
-
-      resolve({
-        status: "success",
-        data: likePost,
-      });
     } catch (err) {
       console.log(err);
       reject(err);
@@ -106,27 +118,28 @@ exports.likePost = (postId, userId) => {
 exports.unlikePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const post = await Post.findById(postId);
-      if (!post) {
-        reject(new AppError(`Post not found`, 404));
+      // const post = await Post.findById(postId);
+      // if (!post) {
+      //   reject(new AppError(`Post not found`, 404));
+      // }
+
+      // if (!post.isActived) {
+      //   reject(new AppError(`This post is longer existed`, 404));
+      // }
+      if ((await checkPost(postId, reject)) === true) {
+        const doc = await LikePost.findOneAndDelete({
+          user: userId,
+          post: postId,
+        });
+
+        if (!doc) {
+          reject(new AppError(`You did not like this post before`, 400));
+        }
+
+        resolve({
+          status: "success",
+        });
       }
-
-      if (!post.isActived) {
-        reject(new AppError(`This post is longer existed`, 404));
-      }
-
-      const doc = await LikePost.findOneAndDelete({
-        user: userId,
-        post: postId,
-      });
-
-      if (!doc) {
-        reject(new AppError(`You did not like this post before`, 400));
-      }
-
-      resolve({
-        status: "success",
-      });
     } catch (err) {
       reject(err);
     }
