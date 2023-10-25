@@ -13,6 +13,13 @@ router
 
 router.route("/:id").get(postController.getPostById);
 
+router
+  .route("/:id/like")
+  .post(authController.restrictTo("user", "business"), postController.likePost)
+  .delete(
+    authController.restrictTo("user", "business"),
+    postController.unlikePost
+  );
 //combine route with comment
 //ex /api/v1/post/postId/comment/
 router.use("/:postId/comments", commentRouters);

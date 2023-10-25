@@ -153,7 +153,13 @@ exports.likeComment = (commentId, userId) => {
 exports.unlikeComment = (commentId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      await CommentLike.findOneAndDelete({ user: userId, comment: commentId });
+      const doc = await CommentLike.findOneAndDelete({
+        user: userId,
+        comment: commentId,
+      });
+      if (!doc) {
+        reject(new AppError(`You did not like this comment before`, 400));
+      }
       resolve({
         status: "sucess",
       });

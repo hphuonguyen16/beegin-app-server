@@ -1,21 +1,19 @@
 const AppError = require("../utils/appError");
 const Hashtag = require("./../models/hashtagModel");
 
-exports.createHashtags = (data) => {
+exports.createHashtags = (content) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { postContent } = data;
-
       //filter post hashtags
-      const hashtags = postContent.match(/#(\w+)/g);
-
+      const hashtags = content.match(/#(\w+)/g);
+      console.log(hashtags);
       //create posthashtag
-      await hashtags.forEach(async (element) => {
-        const hashtag = await Hashtag.findOne({ name: element });
-        if (!hashtag) {
-          await Hashtag.create({ name: element });
-        }
-      });
+      // await hashtags.forEach(async (element) => {
+      //   const hashtag = await Hashtag.findOne({ name: element });
+      //   if (!hashtag) {
+      //     await Hashtag.create({ name: element });
+      //   }
+      // });
       resolve({
         status: "success",
       });

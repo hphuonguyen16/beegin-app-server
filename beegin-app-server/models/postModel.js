@@ -49,6 +49,10 @@ const PostSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  isActived: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const PostModel = mongoose.model("Post", PostSchema);
