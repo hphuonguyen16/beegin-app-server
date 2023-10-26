@@ -4,7 +4,15 @@ const hashtagServices = require("./../services/hashtagServices");
 const factory = require("./../controllers/handlerFactory");
 const Post = require("./../models/postModel");
 
-exports.getAllPost = factory.getAll(Post);
+exports.getAllPost = factory.getAll(Post, {
+  path: "user",
+  select: "_id email profile",
+  populate: {
+    path: "profile",
+    model: "Profile",
+    select: "avatar fullname",
+  },
+});
 
 exports.setUserId = (req, res, next) => {
   if (!req.body.user) req.body.user = req.user.id;
