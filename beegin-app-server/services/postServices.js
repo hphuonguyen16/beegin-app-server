@@ -2,7 +2,12 @@ const Post = require("./../models/postModel");
 const LikePost = require("./../models/likePostModel");
 const AppError = require("./../utils/appError");
 
-const checkUserPermission = () => {};
+const checkDeletingPermission = async (postId, reject, userId) => {
+  const post = await Post.findById(postId);
+  if (!post) {
+    reject(new AppError(`Post not found`, 404));
+  }
+};
 const checkPost = async (postId, reject, userId = null) => {
   const post = await Post.findById(postId);
   if (!post) {
@@ -37,7 +42,7 @@ exports.createPost = (data) => {
   });
 };
 
-exports.updatePost = exports.deletePost = (postId, userId) => {
+exports.deletePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
       // const post = await Post.findById(postId);
@@ -48,7 +53,7 @@ exports.updatePost = exports.deletePost = (postId, userId) => {
       // if (!post.isActived) {
       //   reject(new AppError(`This post is longer existed`, 404));
       // }
-      if ((await checkPost(postId, reject)) === true) {
+      if ((await checkPost(postId, reject, userId)) === true) {
         const doc = await Post.findByIdAndUpdate(postId, { isActived: false });
 
         if (!doc) {

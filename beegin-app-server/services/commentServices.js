@@ -43,14 +43,7 @@ exports.getCommentsOfPost = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
       if ((await checkPost(data.post, reject)) === true) {
-        const comments = await Comment.find({ post: data.post }).populate({
-          path: "user",
-          populate: {
-            path: "profile",
-            model: "Profile",
-            select: "name",
-          },
-        });
+        const comments = await Comment.find({ post: data.post });
 
         resolve({
           status: "success",
@@ -65,14 +58,7 @@ exports.getCommentsOfPost = (data) => {
 exports.getComment = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const comment = await Comment.findById(id).populate({
-        path: "user",
-        populate: {
-          path: "profile",
-          model: "Profile",
-          select: "name",
-        },
-      });
+      const comment = await Comment.findById(id);
 
       resolve({
         status: "success",
