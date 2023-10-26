@@ -2,10 +2,14 @@ const Post = require("./../models/postModel");
 const LikePost = require("./../models/likePostModel");
 const AppError = require("./../utils/appError");
 
-const checkPost = async (postId, reject) => {
+const checkPost = async (postId, reject, userId = null) => {
   const post = await Post.findById(postId);
   if (!post) {
     reject(new AppError(`Post not found`, 404));
+  } else if (userId && post.user !== userId) {
+    reject(
+      new AppError(`You do not have permission to perform this action`, 403)
+    );
   } else if (!post.isActived) {
     reject(new AppError(`This post is longer existed`, 404));
   } else {
@@ -32,7 +36,7 @@ exports.createPost = (data) => {
   });
 };
 
-exports.deletePost = (postId, userId) => {
+exports.updatePost = exports.deletePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
       // const post = await Post.findById(postId);
@@ -69,17 +73,19 @@ exports.getPostById = (id) => {
         populate: {
           path: "profile",
           model: "Profile",
-          select: "name avatar fullname",
+          select: "avatar fullname",
         },
       });
       if (!post) {
         reject(new AppError(`Post not found`, 404));
+      } else if (!post.isActived) {
+        reject(new AppError(`This post is longer existed`, 404));
+      } else {
+        resolve({
+          status: "success",
+          data: post,
+        });
       }
-
-      resolve({
-        status: "success",
-        data: post,
-      });
     } catch (err) {
       reject(err);
     }
