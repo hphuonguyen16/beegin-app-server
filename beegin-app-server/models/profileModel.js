@@ -30,10 +30,6 @@ const Profileschema = new mongoose.Schema(
   }
 );
 
-Profileschema.virtual("fullname").get(function () {
-  return `${this.firstname} ${this.lastname}`;
-});
-
 Profileschema.post("save", async function () {
   await this.populate("user");
 });
