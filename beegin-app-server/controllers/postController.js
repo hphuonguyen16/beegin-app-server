@@ -10,7 +10,7 @@ exports.getAllPost = factory.getAll(Post, {
   populate: {
     path: "profile",
     model: "Profile",
-    select: "avatar fullname",
+    select: "avatar firstname lastname",
   },
 });
 

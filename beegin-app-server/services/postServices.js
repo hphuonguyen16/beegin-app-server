@@ -2,6 +2,7 @@ const Post = require("./../models/postModel");
 const LikePost = require("./../models/likePostModel");
 const AppError = require("./../utils/appError");
 
+const checkUserPermission = () => {};
 const checkPost = async (postId, reject, userId = null) => {
   const post = await Post.findById(postId);
   if (!post) {
@@ -73,7 +74,7 @@ exports.getPostById = (id) => {
         populate: {
           path: "profile",
           model: "Profile",
-          select: "avatar fullname",
+          select: "avatar firstname lastname",
         },
       });
       if (!post) {
