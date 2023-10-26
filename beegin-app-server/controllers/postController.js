@@ -43,3 +43,8 @@ exports.unlikePost = catchAsync(async (req, res, next) => {
   const data = await postServices.unlikePost(req.params.id, req.user.id);
   res.status(200).json(data);
 });
+
+exports.isPostLikedByUser = catchAsync(async (req, res, next) => {
+  const data = await postServices.isPostLikedByUser(req.params.id, req.user.id);
+  res.status(200).json(data);
+});

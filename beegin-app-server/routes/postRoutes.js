@@ -18,6 +18,7 @@ router
 
 router
   .route("/:id/like")
+  .get(postController.isPostLikedByUser)
   .post(authController.restrictTo("user", "business"), postController.likePost)
   .delete(
     authController.restrictTo("user", "business"),

@@ -47,6 +47,7 @@ exports.getCommentsOfPost = (data) => {
 
         resolve({
           status: "success",
+          results: comments.length,
           data: comments,
         });
       }

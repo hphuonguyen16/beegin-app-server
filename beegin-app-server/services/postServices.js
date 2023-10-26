@@ -98,6 +98,22 @@ exports.getPostById = (id) => {
   });
 };
 
+exports.isPostLikedByUser = (postId, userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const isLiked = (await LikePost.exists({ post: postId, user: userId }))
+        ? true
+        : false;
+      resolve({
+        status: "success",
+        data: isLiked,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
 exports.likePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
