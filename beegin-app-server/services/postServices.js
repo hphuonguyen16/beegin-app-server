@@ -98,6 +98,29 @@ exports.getPostById = (id) => {
   });
 };
 
+exports.getPostsByMe = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const posts = await Post.find({ user: userId }).populate({
+        path: "user",
+        select: "_id email profile",
+        populate: {
+          path: "profile",
+          model: "Profile",
+          select: "avatar firstname lastname",
+        },
+      });
+      resolve({
+        status: "success",
+        results: posts.length,
+        data: posts,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
 exports.isPostLikedByUser = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
