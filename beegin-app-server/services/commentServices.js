@@ -3,24 +3,36 @@ const Post = require("./../models/postModel");
 const Comment = require("./../models/commentModel");
 const CommentLike = require("./../models/commentLikeModel");
 
+const checkPost = async (postId, reject) => {
+  const post = await Post.findById(postId);
+  if (!post) {
+    reject(new AppError(`Post not found`, 404));
+  } else if (!post.isActived) {
+    reject(new AppError(`This post is longer existed`, 404));
+  } else {
+    return true;
+  }
+};
+
 exports.createComment = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const post = await Post.findById(data.post);
-      if (!post) {
-        reject(new AppError(`Post with id ${data.post} is no longer exist`));
+      // const post = await Post.findById(data.post);
+      // if (!post) {
+      //   reject(new AppError(`Post with id ${data.post} is no longer exist`));
+      // }
+      if ((await checkPost(data.post, reject)) === true) {
+        const comment = await Comment.create({
+          content: data.content,
+          user: data.user,
+          post: data.post,
+        });
+
+        resolve({
+          status: "success",
+          data: comment,
+        });
       }
-
-      const comment = await Comment.create({
-        content: data.content,
-        user: data.user,
-        post: data.post,
-      });
-
-      resolve({
-        status: "success",
-        data: comment,
-      });
     } catch (err) {
       reject(err);
     }
@@ -30,24 +42,21 @@ exports.createComment = (data) => {
 exports.getCommentsOfPost = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const post = await Post.findById(data.post);
-      if (!post) {
-        reject(new AppError(`Post with id ${data.post} is no longer exist`));
+      if ((await checkPost(data.post, reject)) === true) {
+        const comments = await Comment.find({ post: data.post }).populate({
+          path: "user",
+          populate: {
+            path: "profile",
+            model: "Profile",
+            select: "name",
+          },
+        });
+
+        resolve({
+          status: "success",
+          data: comments,
+        });
       }
-
-      const comments = await Comment.find({ post: data.post }).populate({
-        path: "user",
-        populate: {
-          path: "profile",
-          model: "Profile",
-          select: "name",
-        },
-      });
-
-      resolve({
-        status: "success",
-        data: comments,
-      });
     } catch (err) {
       reject(err);
     }

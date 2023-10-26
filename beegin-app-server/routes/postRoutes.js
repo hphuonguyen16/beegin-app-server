@@ -11,7 +11,10 @@ router
   .get(postController.getAllPost)
   .post(postController.setUserId, postController.createPost);
 
-router.route("/:id").get(postController.getPostById);
+router
+  .route("/:id")
+  .get(postController.getPostById)
+  .delete(postController.deletePost);
 
 router
   .route("/:id/like")

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Category = require("./categoryModel");
 
 const PostSchema = new mongoose.Schema({
   // title: String,
@@ -14,9 +15,9 @@ const PostSchema = new mongoose.Schema({
     maxlength: [1, "A post can only have up to 1 video"],
   },
   categories: [
-    //embedd category in post
     {
-      name: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category", // Reference to the Post model
     },
   ],
   hashtags: [
@@ -55,6 +56,13 @@ const PostSchema = new mongoose.Schema({
   },
 });
 
+PostSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "categories",
+    select: "-createdAt -__v",
+  });
+  next();
+});
 const PostModel = mongoose.model("Post", PostSchema);
 
 module.exports = PostModel;
