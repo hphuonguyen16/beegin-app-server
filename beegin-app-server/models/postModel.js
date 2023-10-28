@@ -13,7 +13,7 @@ const PostSchema = new mongoose.Schema({
   },
   imageVideo: {
     type: String,
-    maxlength: [1, "A post can only have up to 1 video"],
+    // maxlength: [1, "A post can only have up to 1 video"],
   },
   categories: [
     {
