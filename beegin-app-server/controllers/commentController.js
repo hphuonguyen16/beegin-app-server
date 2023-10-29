@@ -1,11 +1,24 @@
 const catchAsync = require("./../utils/catchAsync");
 const commentServices = require("./../services/commentServices");
 
-exports.setUserPostId = (req, res, next) => {
+exports.setQueryParameters = (req, res, next) => {
   if (!req.body.user) req.body.user = req.user.id;
   if (!req.body.post) req.body.post = req.params.postId;
+  // if (!req.body.parent) req.body.parent = req.body.parent;
   next();
 };
+
+exports.setPagingComment = (req, res, next) => {
+  // take 5 comments at a time
+  req.query.limit = "5";
+  req.query.sort = "createdAt";
+  next();
+};
+
+exports.checkParentComment = catchAsync(async (req, res, next) => {
+  const data = await commentServices.checkParentComment(req.body.parent);
+  next();
+});
 
 exports.createComment = catchAsync(async (req, res, next) => {
   const data = await commentServices.createComment(req.body);
@@ -13,7 +26,7 @@ exports.createComment = catchAsync(async (req, res, next) => {
 });
 
 exports.getCommentsOfPost = catchAsync(async (req, res, next) => {
-  const data = await commentServices.getCommentsOfPost(req.body);
+  const data = await commentServices.getCommentsOfPost(req.body, req.query);
   res.status(200).json(data);
 });
 

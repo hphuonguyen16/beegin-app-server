@@ -1,18 +1,18 @@
 const Post = require("./../models/postModel");
 const LikePost = require("./../models/likePostModel");
+const User = require("./../models/userModel");
 const AppError = require("./../utils/appError");
 
 const checkDeletingPermission = async (postId, reject, userId) => {
-  const post = await Post.findById(postId);
-  if (!post) {
-    reject(new AppError(`Post not found`, 404));
+  // admins always have permission to delete post
+  const user = await User.findById(userId);
+  if (user.role === "admin") {
+    return true;
   }
-};
-const checkPost = async (postId, reject, userId = null) => {
   const post = await Post.findById(postId);
   if (!post) {
     reject(new AppError(`Post not found`, 404));
-  } else if (userId && post.user !== userId) {
+  } else if (post.user != userId) {
     reject(
       new AppError(`You do not have permission to perform this action`, 403)
     );
@@ -22,6 +22,23 @@ const checkPost = async (postId, reject, userId = null) => {
     return true;
   }
 };
+
+const checkPost = async (postId, reject, userId = null) => {
+  const post = await Post.findById(postId);
+  if (!post) {
+    reject(new AppError(`Post not found`, 404));
+  } else if (userId && post.user !== userId) {
+    // only user of the post has permission to update post
+    reject(
+      new AppError(`You do not have permission to perform this action`, 403)
+    );
+  } else if (!post.isActived) {
+    reject(new AppError(`This post is longer existed`, 404));
+  } else {
+    return true;
+  }
+};
+
 exports.createPost = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -45,15 +62,7 @@ exports.createPost = (data) => {
 exports.deletePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // const post = await Post.findById(postId);
-      // if (!post) {
-      //   reject(new AppError(`Post not found`, 404));
-      // }
-
-      // if (!post.isActived) {
-      //   reject(new AppError(`This post is longer existed`, 404));
-      // }
-      if ((await checkPost(postId, reject, userId)) === true) {
+      if ((await checkDeletingPermission(postId, reject, userId)) === true) {
         const doc = await Post.findByIdAndUpdate(postId, { isActived: false });
 
         if (!doc) {
@@ -140,14 +149,6 @@ exports.isPostLikedByUser = (postId, userId) => {
 exports.likePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // const post = await Post.findById(postId);
-      // if (!post) {
-      //   reject(new AppError(`Post not found`, 404));
-      // }
-
-      // if (!post.isActived) {
-      //   reject(new AppError(`This post is longer existed`, 404));
-      // }
       if ((await checkPost(postId, reject)) === true) {
         const likePost = await LikePost.create({
           post: postId,
@@ -169,14 +170,6 @@ exports.likePost = (postId, userId) => {
 exports.unlikePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // const post = await Post.findById(postId);
-      // if (!post) {
-      //   reject(new AppError(`Post not found`, 404));
-      // }
-
-      // if (!post.isActived) {
-      //   reject(new AppError(`This post is longer existed`, 404));
-      // }
       if ((await checkPost(postId, reject)) === true) {
         const doc = await LikePost.findOneAndDelete({
           user: userId,

@@ -25,6 +25,10 @@ const CommentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Comment", // Reference to the Comment model
   },
+  numReplies: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -39,10 +43,21 @@ CommentSchema.statics.setNumComments = async function (postId) {
   await Post.findByIdAndUpdate(postId, { numComments: numComments });
 };
 
+CommentSchema.statics.setNumReplies = async function (commentId) {
+  let numReplies = 0;
+  if (commentId) {
+    numReplies = await this.countDocuments({ parent: commentId });
+  }
+  await this.findByIdAndUpdate(commentId, { numReplies: numReplies });
+};
+
 //update numComments of Post when a comment is created
 CommentSchema.post("save", async function (doc, next) {
   if (doc) {
     await doc.constructor.setNumComments(doc.post);
+    if (doc.parent) {
+      await doc.constructor.setNumReplies(doc.parent);
+    }
   }
   next();
 });
@@ -58,6 +73,12 @@ CommentSchema.post(/^findOneAndDelete/, async function (doc, next) {
     await this.deletedComment.constructor.setNumComments(
       this.deletedComment.post
     );
+    if (this.deletedComment.parent) {
+      await this.deletedComment.constructor.setNumReplies(
+        this.deletedComment.parent
+      );
+    } else {
+    }
   }
   next();
 });
