@@ -4,7 +4,15 @@ const hashtagServices = require("./../services/hashtagServices");
 const factory = require("./../controllers/handlerFactory");
 const Post = require("./../models/postModel");
 
-exports.getAllPost = factory.getAll(Post);
+exports.getAllPost = factory.getAll(Post, {
+  path: "user",
+  select: "_id email profile",
+  populate: {
+    path: "profile",
+    model: "Profile",
+    select: "avatar firstname lastname",
+  },
+});
 
 exports.setUserId = (req, res, next) => {
   if (!req.body.user) req.body.user = req.user.id;
@@ -33,5 +41,16 @@ exports.likePost = catchAsync(async (req, res, next) => {
 
 exports.unlikePost = catchAsync(async (req, res, next) => {
   const data = await postServices.unlikePost(req.params.id, req.user.id);
+  res.status(200).json(data);
+});
+
+exports.isPostLikedByUser = catchAsync(async (req, res, next) => {
+  const data = await postServices.isPostLikedByUser(req.params.id, req.user.id);
+  res.status(200).json(data);
+});
+
+exports.getAllPostsByMe = catchAsync(async (req, res, next) => {
+  console.log(req.user.id);
+  const data = await postServices.getPostsByMe(req.user.id);
   res.status(200).json(data);
 });

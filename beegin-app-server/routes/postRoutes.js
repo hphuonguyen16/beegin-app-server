@@ -11,6 +11,8 @@ router
   .get(postController.getAllPost)
   .post(postController.setUserId, postController.createPost);
 
+router.route("/me").get(postController.getAllPostsByMe);
+
 router
   .route("/:id")
   .get(postController.getPostById)
@@ -18,6 +20,7 @@ router
 
 router
   .route("/:id/like")
+  .get(postController.isPostLikedByUser)
   .post(authController.restrictTo("user", "business"), postController.likePost)
   .delete(
     authController.restrictTo("user", "business"),
@@ -26,4 +29,5 @@ router
 //combine route with comment
 //ex /api/v1/post/postId/comment/
 router.use("/:postId/comments", commentRouters);
+
 module.exports = router;

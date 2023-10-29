@@ -2,30 +2,56 @@ const AppError = require("../utils/appError");
 const Post = require("./../models/postModel");
 const Comment = require("./../models/commentModel");
 const CommentLike = require("./../models/commentLikeModel");
+const APIFeatures = require("./../utils/apiFeatures");
 
 const checkPost = async (postId, reject) => {
   const post = await Post.findById(postId);
   if (!post) {
     reject(new AppError(`Post not found`, 404));
   } else if (!post.isActived) {
-    reject(new AppError(`This post is longer existed`, 404));
+    reject(new AppError(`This post no longer existed`, 404));
   } else {
     return true;
   }
 };
 
+exports.checkParentComment = (commentId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!commentId) {
+        resolve({
+          status: "success",
+          data: true,
+        });
+      }
+      const comment = Comment.findById(commentId);
+      if (!comment) {
+        reject(new AppError(`Comment not found`, 404));
+      }
+
+      resolve({
+        status: "success",
+        data: true,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
 exports.createComment = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // const post = await Post.findById(data.post);
-      // if (!post) {
-      //   reject(new AppError(`Post with id ${data.post} is no longer exist`));
-      // }
-      if ((await checkPost(data.post, reject)) === true) {
+      const { content, user, post, parent } = data;
+      if (!content || !user || !post) {
+        reject(new AppError("Please fill in all required fields", 400));
+      }
+      if (await checkPost(post, reject)) {
         const comment = await Comment.create({
-          content: data.content,
-          user: data.user,
-          post: data.post,
+          content: content,
+          user: user,
+          post: post,
+          parent: parent,
         });
 
         resolve({
@@ -39,21 +65,24 @@ exports.createComment = (data) => {
   });
 };
 
-exports.getCommentsOfPost = (data) => {
+exports.getCommentsOfPost = (data, query) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if ((await checkPost(data.post, reject)) === true) {
-        const comments = await Comment.find({ post: data.post }).populate({
-          path: "user",
-          populate: {
-            path: "profile",
-            model: "Profile",
-            select: "name",
-          },
-        });
+      const { post, parent } = data;
+      if (await checkPost(post, reject)) {
+        const features = new APIFeatures(
+          Comment.find({ post: data.post, parent: parent }),
+          query
+        )
+          .filter()
+          .sort()
+          .limitFields()
+          .paginate();
+        const comments = await features.query;
 
         resolve({
           status: "success",
+          results: comments.length,
           data: comments,
         });
       }
@@ -62,17 +91,11 @@ exports.getCommentsOfPost = (data) => {
     }
   });
 };
+
 exports.getComment = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const comment = await Comment.findById(id).populate({
-        path: "user",
-        populate: {
-          path: "profile",
-          model: "Profile",
-          select: "name",
-        },
-      });
+      const comment = await Comment.findById(id);
 
       resolve({
         status: "success",

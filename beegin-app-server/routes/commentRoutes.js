@@ -8,10 +8,16 @@ router.use(authController.protect);
 
 router
   .route("/")
-  .get(commentController.setUserPostId, commentController.getCommentsOfPost)
+  .get(
+    commentController.setQueryParameters,
+    commentController.checkParentComment,
+    commentController.setPagingComment,
+    commentController.getCommentsOfPost
+  )
   .post(
     // authController.restrictTo("user"),
-    commentController.setUserPostId,
+    commentController.setQueryParameters,
+    commentController.checkParentComment,
     commentController.createComment
   );
 
@@ -31,12 +37,12 @@ router
   .route("/:id/like")
   .post(
     authController.restrictTo("user", "business"),
-    commentController.setUserPostId,
+    commentController.setQueryParameters,
     commentController.likeComment
   )
   .delete(
     authController.restrictTo("user", "business"),
-    commentController.setUserPostId,
+    commentController.setQueryParameters,
     commentController.unlikeComment
   );
 

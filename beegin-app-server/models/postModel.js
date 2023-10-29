@@ -4,15 +4,16 @@ const Category = require("./categoryModel");
 const PostSchema = new mongoose.Schema({
   // title: String,
   content: String,
-  images: [
-    {
-      type: String,
-      maxlength: [4, "A post can only have up to 4 image"],
+  images: {
+    type: [String],
+    validate: {
+      validator: (array) => array.length <= 4,
+      message: "A post can have only up to 4 images",
     },
-  ],
+  },
   imageVideo: {
     type: String,
-    maxlength: [1, "A post can only have up to 1 video"],
+    // maxlength: [1, "A post can only have up to 1 video"],
   },
   categories: [
     {
