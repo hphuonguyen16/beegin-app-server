@@ -54,7 +54,6 @@ exports.getOne = (Model, popOptions) =>
       },
     });
   });
-
 exports.getAll = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     // To allow for nested GET reviews on tour (hack)
@@ -73,7 +72,6 @@ exports.getAll = (Model, popOptions) =>
       req.query,
       popOptions
     );
-
     // SEND RESPONSE
     res.status(200).json({
       status: "success",

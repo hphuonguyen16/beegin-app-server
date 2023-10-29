@@ -63,6 +63,7 @@ exports.getOne = (Model, id, popOptions) => {
 };
 
 exports.getAll = (Model, query, popOptions) => {
+
   return new Promise(async (resolve, reject) => {
     try {
       const features = new APIFeatures(Model.find(), query)
