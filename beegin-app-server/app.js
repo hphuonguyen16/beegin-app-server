@@ -12,6 +12,10 @@ const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 const userRouter = require("./routes/userRoutes");
 const followRouter = require("./routes/followRoutes");
+const postRouter = require("./routes/postRoutes");
+const commentRouter = require("./routes/commentRoutes");
+const categoryRouter = require("./routes/categoryRoutes");
+
 const cors = require("cors");
 
 const app = express();
@@ -40,7 +44,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Limit requests from same API
 const limiter = rateLimit({
-  max: 100,
+  max: 100000,
   windowMs: 60 * 60 * 1000,
   message: "Too many requests from this IP, please try again in an hour!",
 });
@@ -81,6 +85,9 @@ app.use((req, res, next) => {
 // 3) ROUTES
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/follows", followRouter);
+app.use("/api/v1/posts", postRouter);
+app.use("/api/v1/comments", commentRouter);
+app.use("/api/v1/categories", categoryRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

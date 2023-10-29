@@ -62,7 +62,8 @@ exports.getOne = (Model, id, popOptions) => {
   });
 };
 
-exports.getAll = (Model, query) => {
+exports.getAll = (Model, query, popOptions) => {
+
   return new Promise(async (resolve, reject) => {
     try {
       const features = new APIFeatures(Model.find(), query)
@@ -71,6 +72,7 @@ exports.getAll = (Model, query) => {
         .limitFields()
         .paginate();
       // const doc = await features.query.explain();
+      if (popOptions) features.query = features.query.populate(popOptions);
       const doc = await features.query;
       resolve(doc);
     } catch (error) {

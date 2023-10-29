@@ -1,22 +1,24 @@
 const mongoose = require("mongoose");
+const Category = require("./categoryModel");
 
-const Postschema = new mongoose.Schema({
-  title: String,
+const PostSchema = new mongoose.Schema({
+  // title: String,
   content: String,
-  images: [
-    {
-      type: String,
-      maxlength: [4, 'A post can only have up to 4 image'],
+  images: {
+    type: [String],
+    validate: {
+      validator: (array) => array.length <= 4,
+      message: "A post can have only up to 4 images",
     },
-  ],
+  },
   imageVideo: {
     type: String,
-    maxlength: [1, 'A post can only have up to 1 video'],
+    // maxlength: [1, "A post can only have up to 1 video"],
   },
   categories: [
-    //embedd category in post
     {
-      name: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category", // Reference to the Post model
     },
   ],
   hashtags: [
@@ -26,8 +28,8 @@ const Postschema = new mongoose.Schema({
   ],
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
-    required: [true, 'A post must belong to a user'],
+    ref: "User", // Reference to the User model
+    required: [true, "A post must belong to a user"],
   },
   // sharedpost: {
   //   type: mongoose.Schema.Types.ObjectId,
@@ -49,8 +51,19 @@ const Postschema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  isActived: {
+    type: Boolean,
+    default: true,
+  },
 });
 
-const PostModel = mongoose.model('Post', Postschema);
+PostSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "categories",
+    select: "-createdAt -__v",
+  });
+  next();
+});
+const PostModel = mongoose.model("Post", PostSchema);
 
 module.exports = PostModel;
