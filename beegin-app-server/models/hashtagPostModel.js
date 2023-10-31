@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-
 const HashtagPostschema = new mongoose.Schema({
   hashtag: {
     type: mongoose.Schema.Types.ObjectId,
@@ -20,4 +19,4 @@ const HashtagPostschema = new mongoose.Schema({
 
 const HashtagPostModel = mongoose.model("HashtagPost", HashtagPostschema);
 
-export default HashtagPostModel;
+module.exports = HashtagPostModel;

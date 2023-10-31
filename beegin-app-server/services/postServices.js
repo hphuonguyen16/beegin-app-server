@@ -82,15 +82,17 @@ exports.deletePost = (postId, userId) => {
 exports.getPostById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const post = await Post.findById(id).populate({
-        path: "user",
-        select: "_id email profile",
-        populate: {
-          path: "profile",
-          model: "Profile",
-          select: "avatar firstname lastname",
-        },
-      });
+      const post = await Post.findById(id)
+        .populate("user")
+        .populate({
+          path: "user",
+          select: "_id email profile",
+          populate: {
+            path: "profile",
+            model: "Profile",
+            select: "avatar firstname lastname -user",
+          },
+        });
       if (!post) {
         reject(new AppError(`Post not found`, 404));
       } else if (!post.isActived) {
