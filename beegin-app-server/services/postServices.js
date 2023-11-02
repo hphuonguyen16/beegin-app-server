@@ -120,7 +120,7 @@ exports.getPostsByMe = (userId) => {
           model: "Profile",
           select: "avatar firstname lastname",
         },
-      });
+      }).sort({ createdAt: -1 });
       resolve({
         status: "success",
         results: posts.length,

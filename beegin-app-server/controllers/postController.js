@@ -50,7 +50,10 @@ exports.isPostLikedByUser = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllPostsByMe = catchAsync(async (req, res, next) => {
-  console.log(req.user.id);
   const data = await postServices.getPostsByMe(req.user.id);
+  res.status(200).json(data);
+});
+exports.getPostByUserId = catchAsync(async (req, res, next) => {
+  const data = await postServices.getPostsByMe(req.params.id);
   res.status(200).json(data);
 });

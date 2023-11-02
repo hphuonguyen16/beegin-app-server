@@ -12,6 +12,7 @@ router
   .post(postController.setUserId, postController.createPost);
 
 router.route("/me").get(postController.getAllPostsByMe);
+router.route("/getPostByUserId/:id").get(postController.getPostByUserId);
 
 router
   .route("/:id")
