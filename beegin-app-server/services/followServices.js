@@ -43,23 +43,24 @@ const isFollowing = async (idFollower, followingId) => {
 exports.getAllFollowings = (id) => {
    return new Promise(async (resolve, reject) =>{
        try {
-
-            if (!id){
-                reject(new AppError(`Missing parameter`, 400));
+        if (!id) {
+            reject(new AppError(`Missing parameter`, 400));
+        } else {
+            const data = await FollowModel.find({ follower: id });
+            const listFollowing = [];
+            for (const follow of data) {
+                const following = await ProfileModel.find({ user: follow.following }).select('firstname lastname avatar');
+                const followingData = {
+                    userId: follow.following,
+                    profile: following
+                };
+                listFollowing.push(followingData)
             }
-            else {
-                let data = await FollowModel.find({ follower: id });
-                let listFollowing = [];
-                for (const follow of data) {
-                    let following = await ProfileModel.find({ user: follow.following }).select('firstname lastname avatar');
-                    listFollowing.push(following);
-                }
-                resolve({
-                    status: 'Success',
-                    data: listFollowing
-                });
-
-            }    
+            resolve({
+                status: 'Success',
+                data: listFollowing
+            })
+        }
         } catch (error) {
             reject(error);
         }
@@ -76,7 +77,11 @@ exports.getAllFollowers = (id) => {
                 let listFollower = [];
                 for (const follow of data) {
                     let follower = await ProfileModel.find({ user: follow.follower }).select('firstname lastname avatar');
-                    listFollower.push(follower);
+                    const followerData = {
+                    userId: follow.follower,
+                    profile: follower
+                };
+                listFollower.push(followerData);
                 }
                 resolve({
                     status: 'Success',
@@ -145,6 +150,7 @@ exports.isFollowing= (idFollower, followingId) => {
             }
             else {
                 const check = await isFollowing(idFollower, followingId);
+                console.log(check);
                 resolve({
                     status: 'Success',
                     data: check
