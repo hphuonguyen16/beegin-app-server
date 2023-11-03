@@ -55,7 +55,9 @@ exports.login = (data) => {
         reject(new AppError("Please provide email and password!", 400));
       }
       // 2) Check if user exists && password is correct
-      const user = await UserModel.findOne({ email }).select("+password");
+      const user = await UserModel.findOne({ email })
+        .select("+password")
+        .populate("profile");
 
       if (!user || !(await user.correctPassword(password, user.password))) {
         reject(new AppError("Incorrect email or password", 401));
