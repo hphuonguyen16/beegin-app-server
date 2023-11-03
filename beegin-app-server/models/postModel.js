@@ -69,16 +69,18 @@ PostSchema.pre(/^find/, function (next) {
 });
 
 PostSchema.pre("save", async function (next) {
-  const hashtags = this.content.match(/#(\w+)/g);
-  if (hashtags?.length > 0) {
-    const promises = hashtags.map(async (element) => {
-      let hashtag = await Hashtag.findOne({ name: element });
-      if (!hashtag) {
-        hashtag = await Hashtag.create({ name: element });
-      }
-      await HashtagPost.create({ hashtag: hashtag._id, post: this._id });
-    });
-    await Promise.all(promises);
+  if (this.content) {
+    const hashtags = this.content.match(/#(\w+)/g);
+    if (hashtags?.length > 0) {
+      const promises = hashtags.map(async (element) => {
+        let hashtag = await Hashtag.findOne({ name: element });
+        if (!hashtag) {
+          hashtag = await Hashtag.create({ name: element });
+        }
+        await HashtagPost.create({ hashtag: hashtag._id, post: this._id });
+      });
+      await Promise.all(promises);
+    }
   }
   next();
 });

@@ -78,7 +78,7 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
     refreshToken,
     process.env.JWT_REFRESH_SECRET
   );
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.id).populate('profile');
 
   if (!currentUser) {
     return next(
@@ -93,6 +93,9 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     token,
+    data: {
+      user: currentUser,
+    },
   });
 });
 
