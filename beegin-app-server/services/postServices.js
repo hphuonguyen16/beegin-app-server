@@ -27,7 +27,7 @@ const checkPost = async (postId, reject, userId = null) => {
   const post = await Post.findById(postId);
   if (!post) {
     reject(new AppError(`Post not found`, 404));
-  } else if (userId && post.user !== userId) {
+  } else if (userId && post.user.toString() !== userId) {
     // only user of the post has permission to update post
     reject(
       new AppError(`You do not have permission to perform this action`, 403)
@@ -59,6 +59,33 @@ exports.createPost = (data) => {
   });
 };
 
+exports.updatePost = (postId, userId, data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (await checkPost(postId, reject, userId)) {
+        const post = await Post.findByIdAndUpdate(postId, data, {
+          new: true,
+          runValidators: true,
+        });
+
+        if (!post) {
+          reject(new AppError(`Post not found`, 404));
+        }
+
+        resolve({
+          status: "success",
+          data: post,
+        });
+      }
+      resolve({
+        status: "success",
+        data: post,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
 exports.deletePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {

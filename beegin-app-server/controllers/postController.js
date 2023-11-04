@@ -25,6 +25,15 @@ exports.createPost = catchAsync(async (req, res, next) => {
   res.status(201).json(data);
 });
 
+exports.updatePost = catchAsync(async (req, res, next) => {
+  delete req.body.user;
+  const data = await postServices.updatePost(
+    req.params.id,
+    req.user.id,
+    req.body
+  );
+  res.status(200).json(data);
+});
 exports.deletePost = catchAsync(async (req, res, next) => {
   const data = await postServices.deletePost(req.params.id, req.user.id);
   res.status(204).json(data);

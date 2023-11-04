@@ -22,3 +22,22 @@ exports.createHashtags = (content) => {
     }
   });
 };
+
+exports.searchHashtag = (searchText) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!content) {
+        reject(new AppError(`Search Text is required`, 400));
+      }
+      const hashtags = await Hashtag.find({
+        name: { $regex: searchText, $options: "i" },
+      });
+      resolve({
+        stauts: "success",
+        data: hashtags,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};

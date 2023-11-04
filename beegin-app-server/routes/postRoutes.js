@@ -16,6 +16,7 @@ router.route("/me").get(postController.getAllPostsByMe);
 router
   .route("/:id")
   .get(postController.getPostById)
+  .patch(postController.updatePost)
   .delete(postController.deletePost);
 
 router
