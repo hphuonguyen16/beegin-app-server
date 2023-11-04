@@ -8,8 +8,8 @@ const xss = require("xss-clean");
 const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-var multer = require('multer');
-var upload = multer();
+const multer = require('multer');
+
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -23,6 +23,7 @@ const messageRouter = require("./routes/messageRoutes");
 const cors = require("cors");
 
 const app = express();
+const upload = multer();
 
 app.use(
   cors({

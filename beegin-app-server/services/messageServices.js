@@ -15,9 +15,17 @@ exports.getFriendMessages = (userId, friendId) => {
                             { $and: [{ sender: userId }, { receiver: friendId }] },
                             { $and: [{ sender: friendId }, { receiver: userId }] }]
                     }).lean();
+
+                const projectMessages = messages.map((msg) => {
+                    return {
+                        fromSelf: msg.sender.toString() === userId,
+                        content: msg.content
+                    }
+                })
+
                 resolve({
                     status: "success",
-                    data: messages,
+                    data: projectMessages,
                 });
             }
         }
@@ -30,7 +38,6 @@ exports.getFriendMessages = (userId, friendId) => {
 exports.sendMessage = (userId, receiverId, data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log(data)
             if (!userId || !data.content === undefined) {
                 reject(new AppError(`Missing parameter`, 400));
             }

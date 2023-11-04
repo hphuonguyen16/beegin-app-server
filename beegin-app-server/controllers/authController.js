@@ -113,7 +113,7 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
 // });
 
 exports.verifyEmail = catchAsync(async (req, res, next) => {
-  console.log(req.params.id);
+  // console.log(req.params.id);
   await authService.verifyToken(req.params.id);
   res.status(200).json({
     status: "success",
@@ -158,7 +158,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   } else if (req.cookies?.jwt) {
     token = req.cookies.jwt;
   }
-  console.log(token);
+  // console.log(token);
   if (!token) {
     return next(
       new AppError("You are not logged in! Please log in to get access.", 401)
@@ -172,10 +172,10 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError("You are not logged in! Please log in to get access.", 401)
     );
   }
-  console.log(decoded);
+  // console.log(decoded);
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
-  console.log(currentUser);
+  // console.log(currentUser);
   if (!currentUser) {
     return next(
       new AppError(

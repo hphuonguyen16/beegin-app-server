@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const socket = require('socket.io')
 const dotenv = require('dotenv');
 
 process.on('uncaughtException', err => {
@@ -25,6 +26,28 @@ mongoose
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
+});
+
+const io = socket(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    credentials: true
+  }
+})
+
+global.onlineUsers = new Map();
+io.on("connection", (socket) => {
+  global.chatSocket = socket;
+  socket.on("add-user", (userId) => {
+    onlineUsers.set(userId, socket.id);
+  });
+
+  socket.on("send-msg", (data) => {
+    const sendUserSocket = onlineUsers.get(data.receiver);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("msg-recieve", data.content);
+    }
+  });
 });
 
 process.on('unhandledRejection', err => {
