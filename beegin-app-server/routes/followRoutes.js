@@ -21,6 +21,7 @@ router.post('/followingOtherUser', followController.followingOtherUser);
 router.get('/getMyNumberOfFollows', followController.getMyNumberOfFollows);
 router.get('/isFollowing/:id', followController.isFollowing);
 
+router.get('/get-friends', followController.getFriends);
 
 
 module.exports = router;

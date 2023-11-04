@@ -7,6 +7,9 @@ const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+var multer = require('multer');
+var upload = multer();
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -15,6 +18,7 @@ const followRouter = require("./routes/followRoutes");
 const postRouter = require("./routes/postRoutes");
 const commentRouter = require("./routes/commentRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
+const messageRouter = require("./routes/messageRoutes");
 
 const cors = require("cors");
 
@@ -54,6 +58,9 @@ app.use("/api", limiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
+app.use(bodyParser())
+app.use(upload.any()); 
+app.use(express.static('public'));
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -88,6 +95,7 @@ app.use("/api/v1/follows", followRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/categories", categoryRouter);
+app.use("/api/v1/messages", messageRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
