@@ -2,14 +2,14 @@ const FollowModel = require('./../models/followModel');
 const ProfileModel = require('./../models/profileModel');
 const AppError = require('./../utils/appError');
 
-exports.followingOtherUser = (followingId,id) => {
-   return new Promise(async (resolve, reject) =>{
+exports.followingOtherUser = (followingId, id) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            if (!followingId){
-               reject(new AppError(`You haven't chosen who you want to follow`, 400));
+            if (!followingId) {
+                reject(new AppError(`You haven't chosen who you want to follow`, 400));
             }
-            else if (id === followingId ) {
-                 reject(new AppError(`Bad request`, 400));
+            else if (id === followingId) {
+                reject(new AppError(`Bad request`, 400));
             }
             else {
                 let check = await isFollowing(id, followingId);
@@ -19,12 +19,12 @@ exports.followingOtherUser = (followingId,id) => {
                 else {
                     await FollowModel.create({
                         follower: id,
-                        following:followingId
+                        following: followingId
                     });
                     resolve({
-                        status:'Success',
+                        status: 'Success',
                     })
-                }    
+                }
             }
         } catch (error) {
             reject(error);
@@ -33,7 +33,7 @@ exports.followingOtherUser = (followingId,id) => {
 };
 const isFollowing = async (idFollower, followingId) => {
     const isFollowing = await FollowModel.findOne({ follower: idFollower, following: followingId });
-    if (isFollowing) { 
+    if (isFollowing) {
         return true;
     }
     else {
@@ -67,13 +67,13 @@ exports.getAllFollowings = (id) => {
     })
 };
 exports.getAllFollowers = (id) => {
-   return new Promise(async (resolve, reject) =>{
+    return new Promise(async (resolve, reject) => {
         try {
-            if (!id){
-               reject(new AppError(`Missing parameter`, 400));
+            if (!id) {
+                reject(new AppError(`Missing parameter`, 400));
             }
             else {
-                let data = await FollowModel.find({following:id});
+                let data = await FollowModel.find({ following: id });
                 let listFollower = [];
                 for (const follow of data) {
                     let follower = await ProfileModel.find({ user: follow.follower }).select('firstname lastname avatar');
@@ -85,7 +85,7 @@ exports.getAllFollowers = (id) => {
                 }
                 resolve({
                     status: 'Success',
-                    data:listFollower
+                    data: listFollower
                 })
             }
         } catch (error) {
@@ -93,11 +93,11 @@ exports.getAllFollowers = (id) => {
         }
     })
 };
-exports.unfollow = (id,followingId) => {
-   return new Promise(async (resolve, reject) =>{
+exports.unfollow = (id, followingId) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            if (!followingId){
-               reject(new AppError(`Missing parameter`, 400));
+            if (!followingId) {
+                reject(new AppError(`Missing parameter`, 400));
             }
             else {
                 let check = await isFollowing(id, followingId);
@@ -108,11 +108,11 @@ exports.unfollow = (id,followingId) => {
                     })
                 }
                 else {
-                    await FollowModel.deleteOne({follower:id,following:followingId});
+                    await FollowModel.deleteOne({ follower: id, following: followingId });
                     resolve({
                         status: 'Success',
                     })
-                }     
+                }
             }
         } catch (error) {
             reject(error);
@@ -120,10 +120,10 @@ exports.unfollow = (id,followingId) => {
     })
 };
 exports.getNumberOfFollows = (id) => {
-   return new Promise(async (resolve, reject) =>{
+    return new Promise(async (resolve, reject) => {
         try {
-            if (!id){
-               reject(new AppError(`Missing parameter`, 400));
+            if (!id) {
+                reject(new AppError(`Missing parameter`, 400));
             }
             else {
                 const NumberOfFollowing = await FollowModel.countDocuments({ follower: id });
@@ -133,9 +133,9 @@ exports.getNumberOfFollows = (id) => {
                     data: ({
                         NumberOfFollower: NumberOfFollower,
                         NumberOfFollowing: NumberOfFollowing
-                        })
                     })
-                }     
+                })
+            }
         } catch (error) {
             reject(error);
         }
@@ -162,3 +162,27 @@ exports.isFollowing= (idFollower, followingId) => {
         }
     })
 }
+exports.getFriends = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!id) {
+                reject(new AppError(`Missing parameter`, 400));
+            }
+            else {
+                let friendIds = [];
+                const followings = await FollowModel.find({ follower: id }).lean();
+                const followers = await FollowModel.find({ following: id }).lean();
+                followings.map(following => followers.map(follower => {
+                    if (following.following.toString() === follower.follower.toString())
+                        friendIds.push(following.following);
+                })
+                )
+                const friends = await ProfileModel.find({ user: { $in: friendIds } });
+                resolve({ status: 'Success', data: friends })
+            }
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
