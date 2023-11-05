@@ -61,3 +61,10 @@ exports.isFollowing = catchAsync(async(req, res) => {
             data
         )
 });
+
+exports.suggestFollow = catchAsync(async(req, res) => {
+    const data = await followService.suggestFollow(req.user.id);
+        return res.status(200).json(
+            data
+        )
+});
