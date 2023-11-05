@@ -1,3 +1,4 @@
+const User = require('../models/userModel');
 const FollowModel = require('./../models/followModel');
 const ProfileModel = require('./../models/profileModel');
 const AppError = require('./../utils/appError');
@@ -162,6 +163,51 @@ exports.isFollowing= (idFollower, followingId) => {
         }
     })
 }
+
+const getGeneralFollowingCount = async (userId, otherId) => {
+    const listA = await FollowModel.find({ follower: userId });
+    const listB = await FollowModel.find({ follower: otherId });
+    const followingListA = listA.map(item => item.following.toString());
+    const followingListB = listB.map(item => item.following.toString());
+    const commonFollowings = followingListA.filter(value => followingListB.includes(value));
+    return commonFollowings;
+}
+
+exports.suggestFollow = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!userId) {
+                reject(new AppError(`Missing parameter`, 400));
+            } else {
+                let listSuggest = [];
+                const users = await User.find({ role: 'user' }).populate({
+                    path: "profile",
+                    model: "Profile",
+                    select: "avatar firstname lastname -user",
+                }).select('profile');
+                for (const user of users) {
+                    let check = await isFollowing(userId, user._id);
+                    if (!check && userId !== user._id.toString()) {
+                        let count = await getGeneralFollowingCount(userId, user._id);
+                        if (count.length > 0) {
+                            listSuggest.push({ user, count: count.length });
+                        }
+                    }
+                }
+                listSuggest.sort((a, b) => b.count - a.count);
+                const top5Suggest = listSuggest.slice(0, 5);
+                resolve({
+                    status: 'Success',
+                    data: top5Suggest
+                });
+            }
+        }
+        catch (error) {
+            reject(error);
+            }
+        })
+    
+}
 exports.getFriends = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -183,6 +229,6 @@ exports.getFriends = (id) => {
         } catch (error) {
             reject(error);
         }
-    })
-}
+    });
+};
 

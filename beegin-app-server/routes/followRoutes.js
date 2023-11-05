@@ -20,7 +20,7 @@ router.delete('/unfollow/:followingId', followController.unfollow);
 router.post('/followingOtherUser', followController.followingOtherUser);
 router.get('/getMyNumberOfFollows', followController.getMyNumberOfFollows);
 router.get('/isFollowing/:id', followController.isFollowing);
-
+router.get('/suggestFollow', followController.suggestFollow);
 router.get('/get-friends', followController.getFriends);
 
 
