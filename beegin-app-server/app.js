@@ -18,6 +18,7 @@ const followRouter = require("./routes/followRoutes");
 const postRouter = require("./routes/postRoutes");
 const commentRouter = require("./routes/commentRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
+const trendingRouter = require("./routes/trendingRoutes");
 const messageRouter = require("./routes/messageRoutes");
 
 const cors = require("cors");
@@ -96,6 +97,7 @@ app.use("/api/v1/follows", followRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/categories", categoryRouter);
+app.use("/api/v1/trending/", trendingRouter);
 app.use("/api/v1/messages", messageRouter);
 
 app.all("*", (req, res, next) => {
