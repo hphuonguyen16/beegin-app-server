@@ -67,4 +67,9 @@ exports.suggestFollow = catchAsync(async(req, res) => {
         return res.status(200).json(
             data
         )
+    });
+
+exports.getFriends = catchAsync(async(req, res, next) => {
+    const data = await followService.getFriends(req.user.id);
+        return res.status(200).json(data)
 });
