@@ -49,6 +49,8 @@ exports.createPost = (data) => {
         categories: data.categories,
         user: data.user,
       });
+      await post.populate("user");
+      await post.populate('categories');
       resolve({
         status: "success",
         data: post,
@@ -139,15 +141,17 @@ exports.getPostById = (id) => {
 exports.getPostsByMe = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const posts = await Post.find({ user: userId }).populate({
-        path: "user",
-        select: "_id email profile",
-        populate: {
-          path: "profile",
-          model: "Profile",
-          select: "avatar firstname lastname",
-        },
-      }).sort({ createdAt: -1 });
+      const posts = await Post.find({ user: userId })
+        .populate({
+          path: "user",
+          select: "_id email profile",
+          populate: {
+            path: "profile",
+            model: "Profile",
+            select: "avatar firstname lastname",
+          },
+        })
+        .sort({ createdAt: -1 });
       resolve({
         status: "success",
         results: posts.length,
