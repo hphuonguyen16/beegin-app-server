@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const socket = require('socket.io')
+const socket = require("socket.io");
 
 const trendingServices = require("./services/trendingServices");
 
-process.on('uncaughtException', err => {
-  console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+process.on("uncaughtException", (err) => {
+  console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
   console.log(err.name, err.message, err.stack);
   process.exit(1);
 });
@@ -29,7 +29,7 @@ mongoose
 const conSuccess = mongoose.connection;
 conSuccess.once("open", () => {
   //run this every certain time after database connection successfully
-  setInterval(trendingServices.determineTrendingHashtags, 120000);
+  setInterval(trendingServices.determineTrendingHashtags, 60000);
 });
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
@@ -39,9 +39,9 @@ const server = app.listen(port, () => {
 const io = socket(server, {
   cors: {
     origin: "http://localhost:3000",
-    credentials: true
-  }
-})
+    credentials: true,
+  },
+});
 
 global.onlineUsers = new Map();
 io.on("connection", (socket) => {
@@ -58,8 +58,8 @@ io.on("connection", (socket) => {
   });
 });
 
-process.on('unhandledRejection', err => {
-  console.log('UNHANDLED REJECTION! 💥 Shutting down...');
+process.on("unhandledRejection", (err) => {
+  console.log("UNHANDLED REJECTION! 💥 Shutting down...");
   console.log(err.name, err.message);
   server.close(() => {
     process.exit(1);
