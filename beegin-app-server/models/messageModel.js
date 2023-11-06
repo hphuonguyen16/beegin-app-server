@@ -11,6 +11,10 @@ const Messageschema = new mongoose.Schema({
     ref: 'User', // Reference to the User model
     required: [true, 'A message must have a receiver'],
   },
+  type: {
+    type: String,
+    required: [true, 'Please provide a message type'],
+  },
   content: {
     type: String,
     required: [true, 'Please provide a message content'],

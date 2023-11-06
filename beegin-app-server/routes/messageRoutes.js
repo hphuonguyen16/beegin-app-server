@@ -9,9 +9,12 @@ router.use(authController.protect);
 
 router.get("/get-friends-and-recent-message", messageController.getFriendsAndRecentMessage);
 
+router.get("/get-chat-images/:id", messageController.getChatImages);
+
 router
     .route("/:id")
     .get(messageController.getFriendMessages)
     .post(messageController.sendMessage)
+    .delete(messageController.deleteMessage)
 
 module.exports = router;
