@@ -4,6 +4,7 @@ const User = require("./../models/userModel");
 const HashtagPost = require("./../models/hashtagPostModel");
 const AppError = require("./../utils/appError");
 const APIFeatures = require("./../utils/apiFeatures");
+const Hashtag = require("./../models/hashtagModel");
 
 const checkDeletingPermission = async (postId, reject, userId) => {
   // admins always have permission to delete post
@@ -226,20 +227,43 @@ exports.unlikePost = (postId, userId) => {
 exports.getPostsByHashtag = (hashtag, query) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const features = new APIFeatures(
-        HashtagPost.find({ hashtag: hashtag }),
+      if (!hashtag) {
+        reject(`Hashtag empty`, 400);
+      }
+      hashtag = "#" + hashtag;
+      console.log(hashtag);
+      const hashtagId = await Hashtag.find({
+        name: { $regex: new RegExp(hashtag, "i") },
+      });
+      console.log(hashtagId);
+      const hashtagPosts = await HashtagPost.find({
+        hashtag: hashtagId[0]._id,
+      });
+      if (!hashtagPosts) {
+        reject(new AppError(`Not found`, 404));
+      }
+      const postIds = hashtagPosts.map((post) => post.post.toString());
+
+      console.log(postIds);
+      const postFeatures = new APIFeatures(
+        Post.find({ _id: { $in: postIds } }),
         query
       )
-        .filter()
+        // .filter()
         .limitFields()
         .sort()
         .paginate();
-
-      const posts = await features.query;
-      if (!posts) {
-        reject(new AppError(`Not found`, 404));
-      }
-
+      postFeatures.query = postFeatures.query.populate({
+        path: "user",
+        select: "_id email profile",
+        populate: {
+          path: "profile",
+          model: "Profile",
+          select: "avatar firstname lastname",
+        },
+      });
+      const posts = await postFeatures.query;
+      console.log("----------------------------", posts);
       resolve({
         status: "success",
         results: posts.length,
