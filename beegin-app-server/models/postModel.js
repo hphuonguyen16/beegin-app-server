@@ -68,21 +68,33 @@ PostSchema.pre(/^find/, function (next) {
   next();
 });
 
-PostSchema.pre("save", async function (next) {
-  if (this.content) {
-    const hashtags = this.content.match(/#(\w+)/g);
+PostSchema.post("save", async function (doc, next) {
+  if (doc.content) {
+    console.log(doc);
+    const hashtags = doc.content.match(/#(\w+)/g);
     if (hashtags?.length > 0) {
       const promises = hashtags.map(async (element) => {
         let hashtag = await Hashtag.findOne({ name: element });
+        console.log("find", hashtag);
         if (!hashtag) {
           hashtag = await Hashtag.create({ name: element });
+          console.log("create", hashtag);
         }
-        await HashtagPost.create({ hashtag: hashtag._id, post: this._id });
+        const newHashtagPost = await HashtagPost.create({
+          hashtag: hashtag._id,
+          post: doc._id,
+        });
+        console.log(newHashtagPost);
       });
-      await Promise.all(promises);
+      Promise.all(promises)
+        .then(() => next())
+        .catch((error) => next(error));
+    } else {
+      next();
     }
+  } else {
+    next();
   }
-  next();
 });
 
 PostSchema.pre("findOneAndUpdate", async function (next) {
