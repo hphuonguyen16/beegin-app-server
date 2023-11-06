@@ -1,7 +1,9 @@
 const Post = require("./../models/postModel");
 const LikePost = require("./../models/likePostModel");
 const User = require("./../models/userModel");
+const HashtagPost = require("./../models/hashtagPostModel");
 const AppError = require("./../utils/appError");
+const APIFeatures = require("./../utils/apiFeatures");
 
 const checkDeletingPermission = async (postId, reject, userId) => {
   // admins always have permission to delete post
@@ -139,15 +141,17 @@ exports.getPostById = (id) => {
 exports.getPostsByMe = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const posts = await Post.find({ user: userId }).populate({
-        path: "user",
-        select: "_id email profile",
-        populate: {
-          path: "profile",
-          model: "Profile",
-          select: "avatar firstname lastname",
-        },
-      }).sort({ createdAt: -1 });
+      const posts = await Post.find({ user: userId })
+        .populate({
+          path: "user",
+          select: "_id email profile",
+          populate: {
+            path: "profile",
+            model: "Profile",
+            select: "avatar firstname lastname",
+          },
+        })
+        .sort({ createdAt: -1 });
       resolve({
         status: "success",
         results: posts.length,
@@ -213,6 +217,34 @@ exports.unlikePost = (postId, userId) => {
           status: "success",
         });
       }
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+exports.getPostsByHashtag = (hashtag, query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const features = new APIFeatures(
+        HashtagPost.find({ hashtag: hashtag }),
+        query
+      )
+        .filter()
+        .limitFields()
+        .sort()
+        .paginate();
+
+      const posts = await features.query;
+      if (!posts) {
+        reject(new AppError(`Not found`, 404));
+      }
+
+      resolve({
+        status: "success",
+        results: posts.length,
+        data: posts,
+      });
     } catch (err) {
       reject(err);
     }
