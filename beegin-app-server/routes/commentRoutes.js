@@ -23,7 +23,12 @@ router
 
 router
   .route("/:id")
-  .get(commentController.getComment)
+  .get(
+    commentController.setQueryParameters,
+    commentController.checkParentComment,
+    commentController.setPagingComment,
+    commentController.getCommentsOfPost
+  )
   .patch(
     authController.restrictTo("user", "admin"),
     commentController.updateComment
