@@ -52,7 +52,7 @@ exports.createPost = (data) => {
         categories: data.categories,
         user: data.user,
       });
-      await post.populate("user");
+      await post.populate("user", "_id profile");
       await post.populate('categories');
       resolve({
         status: "success",
