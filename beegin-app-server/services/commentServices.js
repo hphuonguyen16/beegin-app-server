@@ -53,7 +53,8 @@ exports.createComment = (data) => {
           post: post,
           parent: parent,
         });
-
+        // populate user
+        await comment.populate("user", "_id profile");
         resolve({
           status: "success",
           data: comment,
