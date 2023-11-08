@@ -27,7 +27,7 @@ exports.getFriendsAndRecentMessage = (id) => {
                     }).sort({ createdAt: -1 }).lean()
                     return {
                         friend: friend,
-                        message: {
+                        message: msg === null ? null : {
                             id: msg._id,
                             fromSelf: msg.sender.toString() === id,
                             type: msg.type,
