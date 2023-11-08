@@ -1,11 +1,11 @@
-const User = require('./../models/userModel');
-const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
-const factory = require('./handlerFactory');
-const userServices = require('../services/userServices');
+const User = require("./../models/userModel");
+const catchAsync = require("./../utils/catchAsync");
+const AppError = require("./../utils/appError");
+const factory = require("./handlerFactory");
+const userServices = require("../services/userServices");
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
-  Object.keys(obj).forEach(el => {
+  Object.keys(obj).forEach((el) => {
     if (allowedFields.includes(el)) newObj[el] = obj[el];
   });
   return newObj;
@@ -48,15 +48,15 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
 
   res.status(204).json({
-    status: 'success',
-    data: null
+    status: "success",
+    data: null,
   });
 });
 
 exports.createUser = (req, res) => {
   res.status(500).json({
-    status: 'error',
-    message: 'This route is not defined! Please use /signup instead'
+    status: "error",
+    message: "This route is not defined! Please use /signup instead",
   });
 };
 
@@ -68,26 +68,17 @@ exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
 
 exports.getProfileByID = catchAsync(async (req, res, next) => {
-    const data = await userServices.getProfileByID(req.params.id);
-        return res.status(200).json(
-            data
-        )
+  const data = await userServices.getProfileByID(req.params.id);
+  return res.status(200).json(data);
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
-  console.log(req.user.id);
-    const data = await userServices.getProfileByID(req.user.id);
-        return res.status(200).json(
-            data
-        )
+  // console.log(req.user.id);
+  const data = await userServices.getProfileByID(req.user.id);
+  return res.status(200).json(data);
 });
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-    const data = await userServices.updateMe(req.user.id,req.body);
-        return res.status(200).json(
-            data
-        )
+  const data = await userServices.updateMe(req.user.id, req.body);
+  return res.status(200).json(data);
 });
-
-
-

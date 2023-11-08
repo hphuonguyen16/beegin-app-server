@@ -53,7 +53,7 @@ exports.createPost = (data) => {
         user: data.user,
       });
       await post.populate("user");
-      await post.populate('categories');
+      await post.populate("categories");
       resolve({
         status: "success",
         data: post,
@@ -197,7 +197,7 @@ exports.likePost = (postId, userId) => {
         });
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       reject(err);
     }
   });
@@ -233,11 +233,11 @@ exports.getPostsByHashtag = (hashtag, query) => {
         reject(`Hashtag empty`, 400);
       }
       hashtag = "#" + hashtag;
-      console.log(hashtag);
+      // console.log(hashtag);
       const hashtagId = await Hashtag.find({
         name: { $regex: new RegExp(hashtag, "i") },
       });
-      console.log(hashtagId);
+      // console.log(hashtagId);
       const hashtagPosts = await HashtagPost.find({
         hashtag: hashtagId[0]._id,
       });
@@ -246,7 +246,7 @@ exports.getPostsByHashtag = (hashtag, query) => {
       }
       const postIds = hashtagPosts.map((post) => post.post.toString());
 
-      console.log(postIds);
+      // console.log(postIds);
       const postFeatures = new APIFeatures(
         Post.find({ _id: { $in: postIds } }),
         query
@@ -265,7 +265,7 @@ exports.getPostsByHashtag = (hashtag, query) => {
         },
       });
       const posts = await postFeatures.query;
-      console.log("----------------------------", posts);
+      // console.log("----------------------------", posts);
       resolve({
         status: "success",
         results: posts.length,

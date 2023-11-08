@@ -6,7 +6,7 @@ const trendingServices = require("./services/trendingServices");
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
-  console.log(err.name, err.message, err.stack);
+  console.log(errk.name, err.message, err.stack);
   process.exit(1);
 });
 

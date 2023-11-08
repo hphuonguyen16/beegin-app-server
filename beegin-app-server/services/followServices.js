@@ -153,7 +153,7 @@ exports.isFollowing = (idFollower, followingId) => {
         reject(new AppError(`Missing parameter`, 400));
       } else {
         const check = await isFollowing(idFollower, followingId);
-        console.log(check);
+        // console.log(check);
         resolve({
           status: "Success",
           data: check,
