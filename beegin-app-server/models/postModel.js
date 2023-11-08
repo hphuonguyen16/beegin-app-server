@@ -70,21 +70,20 @@ PostSchema.pre(/^find/, function (next) {
 
 PostSchema.post("save", async function (doc, next) {
   if (doc.content) {
-    console.log(doc);
     const hashtags = doc.content.match(/#(\w+)/g);
     if (hashtags?.length > 0) {
       const promises = hashtags.map(async (element) => {
         let hashtag = await Hashtag.findOne({ name: element });
-        console.log("find", hashtag);
+        // console.log("find", hashtag);
         if (!hashtag) {
           hashtag = await Hashtag.create({ name: element });
-          console.log("create", hashtag);
+          // console.log("create", hashtag);
         }
         const newHashtagPost = await HashtagPost.create({
           hashtag: hashtag._id,
           post: doc._id,
         });
-        console.log(newHashtagPost);
+        // console.log(newHashtagPost);
       });
       Promise.all(promises)
         .then(() => next())
@@ -104,19 +103,19 @@ PostSchema.pre("findOneAndUpdate", async function (next) {
     const post = await this.model.findOne(this.getFilter());
 
     const oldHashtags = post.content.match(/#(\w+)/g) || [];
-    console.log("old", oldHashtags);
+    // console.log("old", oldHashtags);
     const newHashtags = updatedFields.content.match(/#(\w+)/g) || [];
-    console.log("new", newHashtags);
+    // console.log("new", newHashtags);
     // Find hashtags that were removed
     const removedHashtags = oldHashtags.filter(
       (oldHashtag) => !newHashtags.includes(oldHashtag)
     );
-    console.log("removed", removedHashtags);
+    // console.log("removed", removedHashtags);
     // Find hashtags that are new
     const addedHashtags = newHashtags.filter(
       (newHashtag) => !oldHashtags.includes(newHashtag)
     );
-    console.log("added", addedHashtags);
+    // console.log("added", addedHashtags);
     // Delete old hashtagPosts
     const deletePromise = removedHashtags.map(async (element) => {
       let hashtag = await Hashtag.findOne({ name: element });

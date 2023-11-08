@@ -64,7 +64,7 @@ CommentSchema.post("save", async function (doc, next) {
 
 CommentSchema.pre(/^findOneAndDelete/, async function (next) {
   this.deletedComment = await this.model.findOne(this.getFilter());
-  console.log(this.deletedComment);
+  // console.log(this.deletedComment);
   next();
 });
 //update numComments of Post when a comment is deleted
