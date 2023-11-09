@@ -26,6 +26,30 @@ exports.getProfileByID = (id) => {
         }
     })
 };
+exports.checkMyId = (myId,id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!id) {
+                reject(new AppError(`Missing parameter`, 400));
+            }
+            else {
+                let check;
+                if (myId === id) {
+                    check = true;
+                }
+                else {
+                    check = false;
+                }
+                resolve({
+                    data: check
+                })
+            }
+        }
+         catch (error) {
+            reject(error);
+        }
+    })
+};
 exports.updateMe = (id,data) => {
    return new Promise(async (resolve, reject) =>{
        try {
