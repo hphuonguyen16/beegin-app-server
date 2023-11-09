@@ -15,7 +15,7 @@ router
     commentController.getCommentsOfPost
   )
   .post(
-    // authController.restrictTo("user"),
+    authController.restrictTo("user", "business"),
     commentController.setQueryParameters,
     commentController.checkParentComment,
     commentController.createComment
@@ -30,11 +30,11 @@ router
     commentController.getCommentsOfPost
   )
   .patch(
-    authController.restrictTo("user", "admin"),
+    authController.restrictTo("user", "business"),
     commentController.updateComment
   )
   .delete(
-    authController.restrictTo("user", "bussiness", "admin"),
+    // authController.restrictTo("user", "bussiness", "admin"),
     commentController.deleteComment
   );
 
