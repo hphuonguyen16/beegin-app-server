@@ -19,7 +19,7 @@ router.use(authController.protect);
 router.patch('/updateMyPassword', authController.updatePassword);
 // router.get('/me', userController.getMe, userController.getUser);
 router.get('/me', userController.getMe);
-
+router.get('/checkId/:id', userController.checkMyId);
 router.get('/getProfileByID/:id', userController.getProfileByID);
 router.patch('/updateMe', userController.updateMe);
 router.delete('/deleteMe', userController.deleteMe);

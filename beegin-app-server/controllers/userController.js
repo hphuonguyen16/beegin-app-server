@@ -75,8 +75,13 @@ exports.getProfileByID = catchAsync(async (req, res, next) => {
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
-  console.log(req.user.id);
     const data = await userServices.getProfileByID(req.user.id);
+        return res.status(200).json(
+            data
+        )
+});
+exports.checkMyId = catchAsync(async (req, res, next) => {
+    const data = await userServices.checkMyId(req.user.id,req.params.id);
         return res.status(200).json(
             data
         )
