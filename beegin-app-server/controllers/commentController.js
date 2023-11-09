@@ -4,7 +4,7 @@ const commentServices = require("./../services/commentServices");
 exports.setQueryParameters = (req, res, next) => {
   if (!req.body.user) req.body.user = req.user.id;
   if (!req.body.post) req.body.post = req.params.postId;
-  // if (!req.body.parent) req.body.parent = req.body.parent;
+  if (req.params.id) req.body.parent = req.params.id;
   next();
 };
 

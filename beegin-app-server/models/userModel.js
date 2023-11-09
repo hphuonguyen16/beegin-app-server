@@ -96,8 +96,9 @@ userSchema.pre("save", function (next) {
 userSchema.pre(/^find/, function (next) {
   // this points to the current query
   this.find({ active: { $ne: false } }).select("-refreshtoken");
+  this.populate('profile' , 'firstname lastname avatar');
   next();
-});
+}); 
 
 userSchema.methods.correctPassword = async function (
   candidatePassword,
