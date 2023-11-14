@@ -16,5 +16,6 @@ router
     .get(messageController.getFriendMessages)
     .post(messageController.sendMessage)
     .delete(messageController.deleteMessage)
+    .put(messageController.updateMessageStatus)
 
 module.exports = router;

@@ -26,3 +26,8 @@ exports.deleteMessage = catchAsync(async (req, res, next) => {
     const data = await messageService.deleteMessage(req.params.id);
     res.status(201).json(data);
 })
+
+exports.updateMessageStatus = catchAsync(async (req, res, next) => {
+    const data = await messageService.updateMessageStatus(req.user.id, req.params.id, req.body.status);
+    res.status(201).json(data);
+})

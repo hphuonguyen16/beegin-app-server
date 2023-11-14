@@ -62,7 +62,8 @@ exports.getFriendMessages = (userId, friendId) => {
                         id: msg._id,
                         fromSelf: msg.sender.toString() === userId,
                         type: msg.type,
-                        content: msg.content
+                        content: msg.content,
+                        createdAt: msg.createdAt
                     }
                 })
 
@@ -152,3 +153,50 @@ exports.deleteMessage = (id) => {
         }
     })
 }
+
+exports.updateMessageStatus = (userId, receiver, status) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (status === "seen") {
+                const lastMessage = await MessageModel.find({
+                    receiver: userId,
+                    sender: receiver,
+                })
+                    .limit(1)
+                    .sort({ $natural: -1 });
+
+                if (lastMessage.length > 0) {
+                    await MessageModel.updateOne(
+                        { _id: lastMessage[0]._id },
+                        {
+                            $set: {
+                                status: status,
+                            },
+                        }
+                    );
+                }
+
+            } else if (status === "delivered") {
+                const chats = await ChatModel.find({ members: userId });
+
+                const chatIDs = chats.map((chat) => {
+                    return chat._id;
+                });
+
+                await MessageModel.updateMany(
+                    {
+                        chatId: { $in: chatIDs },
+                        senderId: { $ne: userId },
+                        status: "sent",
+                    },
+                    {
+                        status: status,
+                    }
+                );
+            }
+
+        } catch (error) {
+            reject(error);
+        }
+    })
+};
