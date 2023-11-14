@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const FollowModel = require("./../models/followModel");
 const ProfileModel = require("./../models/profileModel");
+const NotificationModel = require("./../models/notificationModel");
 const AppError = require("./../utils/appError");
 
 exports.followingOtherUser = (followingId, id) => {
@@ -18,6 +19,11 @@ exports.followingOtherUser = (followingId, id) => {
           await FollowModel.create({
             follower: id,
             following: followingId,
+          });
+          const profile = await ProfileModel.findOne({ user: id }).select("firstname lastname username")
+          await NotificationModel.create({
+            user: followingId,
+            content:`${profile.firstname} ${profile.lastname} has followed you`,
           });
           resolve({
             status: "Success",
@@ -42,6 +48,7 @@ const isFollowing = async (idFollower, followingId) => {
 };
 exports.getAllFollowings = (id) => {
   return new Promise(async (resolve, reject) => {
+    
     try {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
@@ -51,7 +58,7 @@ exports.getAllFollowings = (id) => {
         for (const follow of data) {
           const following = await ProfileModel.find({
             user: follow.following,
-          }).select("firstname lastname avatar");
+          }).select("firstname lastname avatar username");
           const followingData = {
             userId: follow.following,
             profile: following,
@@ -79,10 +86,12 @@ exports.getAllFollowers = (id) => {
         for (const follow of data) {
           let follower = await ProfileModel.find({
             user: follow.follower,
-          }).select("firstname lastname avatar");
+          }).select("firstname lastname avatar username");
+          let check = await isFollowing(id,follow.follower)
           const followerData = {
             userId: follow.follower,
             profile: follower,
+            status:check
           };
           listFollower.push(followerData);
         }
@@ -187,7 +196,7 @@ exports.suggestFollow = (userId) => {
           .populate({
             path: "profile",
             model: "Profile",
-            select: "avatar firstname lastname -user",
+            select: "avatar firstname lastname -user username",
           })
           .select("profile");
         for (const user of users) {
