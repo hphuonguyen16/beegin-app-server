@@ -201,3 +201,23 @@ exports.unlikeComment = (commentId, userId) => {
     }
   });
 };
+
+exports.isCommentLikedByUser = (commentId, userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const isLiked = (await CommentLike.exists({
+        comment: commentId,
+        user: userId,
+      }))
+        ? true
+        : false;
+
+      resolve({
+        status: "success",
+        data: isLiked,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};

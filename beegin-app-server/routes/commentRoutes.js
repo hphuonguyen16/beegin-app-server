@@ -40,6 +40,7 @@ router
 
 router
   .route("/:id/like")
+  .get(commentController.isCommentLikeByUser)
   .post(
     authController.restrictTo("user", "business"),
     commentController.setQueryParameters,
