@@ -62,3 +62,11 @@ exports.unlikeComment = catchAsync(async (req, res, next) => {
   );
   res.status(202).json(data);
 });
+
+exports.isCommentLikeByUser = catchAsync(async (req, res, next) => {
+  const data = await commentServices.isCommentLikedByUser(
+    req.params.id,
+    req.user.id
+  );
+  res.status(200).json(data);
+});

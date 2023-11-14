@@ -53,7 +53,7 @@ exports.createPost = (data) => {
         user: data.user,
       });
       await post.populate("user", "_id profile");
-      await post.populate('categories');
+      await post.populate("categories");
       resolve({
         status: "success",
         data: post,
@@ -226,18 +226,22 @@ exports.unlikePost = (postId, userId) => {
   });
 };
 
-exports.getPostsByHashtag = (hashtag, query) => {
+exports.getPostsByHashtag = (hashtag, query, media = null) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!hashtag) {
         reject(`Hashtag empty`, 400);
       }
-      hashtag = "#" + hashtag;
-      console.log(hashtag);
       const hashtagId = await Hashtag.find({
         name: { $regex: new RegExp(hashtag, "i") },
       });
       console.log(hashtagId);
+      if (hashtagId.length == 0)
+        resolve({
+          status: "success",
+          results: 0,
+          data: null,
+        });
       const hashtagPosts = await HashtagPost.find({
         hashtag: hashtagId[0]._id,
       });
@@ -246,11 +250,15 @@ exports.getPostsByHashtag = (hashtag, query) => {
       }
       const postIds = hashtagPosts.map((post) => post.post.toString());
 
-      console.log(postIds);
-      const postFeatures = new APIFeatures(
-        Post.find({ _id: { $in: postIds } }),
-        query
-      )
+      let filter = { _id: { $in: postIds } };
+      if (media === "media")
+        filter.$and = [
+          { images: { $ne: null } }, // Ensure images is not null
+          { "images.0": { $exists: true } }, // Ensure images has at least one element
+        ];
+
+      console.log(filter);
+      const postFeatures = new APIFeatures(Post.find(filter), query)
         // .filter()
         .limitFields()
         .sort()
@@ -265,7 +273,36 @@ exports.getPostsByHashtag = (hashtag, query) => {
         },
       });
       const posts = await postFeatures.query;
-      console.log("----------------------------", posts);
+      resolve({
+        status: "success",
+        results: posts.length,
+        data: posts,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+exports.searchPosts = (searchText, query, media = null) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!searchText) reject(new AppError(`Empty search string`, 400));
+      const regex = new RegExp(searchText, "i");
+      let filter = { content: regex };
+      if (media === "media")
+        filter.$and = [
+          { images: { $ne: null } }, // Ensure images is not null
+          { "images.0": { $exists: true } }, // Ensure images has at least one element
+        ];
+      const features = new APIFeatures(Post.find(filter), query)
+        .sort()
+        .paginate();
+
+      const posts = (await features.query) ?? [];
+
+      if (!posts) reject(new AppError(`Not found`, 404));
+
       resolve({
         status: "success",
         results: posts.length,
