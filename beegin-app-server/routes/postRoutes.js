@@ -9,7 +9,11 @@ router.use(authController.protect);
 router
   .route("/")
   .get(postController.getAllPost)
-  .post(postController.setUserId, postController.createPost);
+  .post(
+    authController.restrictTo("user", "business"),
+    postController.setUserId,
+    postController.createPost
+  );
 
 router.route("/me").get(postController.getAllPostsByMe);
 router.route("/getPostByUserId/:id").get(postController.getPostByUserId);
