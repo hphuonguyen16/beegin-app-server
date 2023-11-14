@@ -139,6 +139,7 @@ exports.sendMessage = (userId, receiverId, data) => {
 
 exports.deleteMessage = (id) => {
     return new Promise(async (resolve, reject) => {
+        console.log('deleteMessage', id);
         try {
             await MessageModel.findByIdAndRemove(id)
 
