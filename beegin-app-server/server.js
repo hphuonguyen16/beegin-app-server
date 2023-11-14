@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const socket = require("socket.io");
 
+const { updateMessageStatus } = require("./services/messageServices");
 const trendingServices = require("./services/trendingServices");
 
 process.on("uncaughtException", (err) => {
@@ -43,20 +44,57 @@ const io = socket(server, {
   },
 });
 
-global.onlineUsers = new Map();
+let onlineUsers = [];
 io.on("connection", (socket) => {
   global.chatSocket = socket;
   socket.on("add-user", (userId) => {
-    onlineUsers.set(userId, socket.id);
+    onlineUsers.push({ userId: userId, socketId: socket.id });
+    io.sockets.emit("get-users", onlineUsers.map(user => user.userId));
+  });
+
+  socket.on("disconnect", () => {
+    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id)
+    console.log("user disconnected", onlineUsers);
+    // send all online users to all users
+    io.emit("get-users", onlineUsers.map(user => user.userId));
+  });
+
+  socket.on("offline", () => {
+    // remove user from active users
+    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id)
+    console.log("user is offline", onlineUsers);
+    // send all online users to all users
+    io.emit("get-users", onlineUsers.map(user => user.userId));
+  });
+
+  socket.on("typing", (data) => {
+    const user = onlineUsers.find((user) => user.userId === data.receiver);
+    console.log("typing")
+    if (user) {
+      socket.to(user.socketId).emit("get-typing", data);
+      // console.log("typing: " + data)
+    }
   });
 
   socket.on("send-msg", (data) => {
-    const sendUserSocket = onlineUsers.get(data.receiver);
+    const sendUserSocket = onlineUsers.find((user) => user.userId === data.receiver);
     if (sendUserSocket) {
-      socket.to(sendUserSocket).emit("msg-recieve", data);
+      socket.to(sendUserSocket.socketId).emit("msg-recieve", data);
+    }
+  });
+
+  socket.on("message-seen-status", (data) => {
+    data.status = "seen";
+    updateMessageStatus(data.userId, data.receiver, data.status);
+    const sendUserSocket = onlineUsers.find((user) => user.userId === data.receiver);
+    // console.log("Message seen by: ", data)
+    if (sendUserSocket) {
+      socket.to(sendUserSocket.socketId).emit("message-seen");
     }
   });
 });
+
+
 
 process.on("unhandledRejection", (err) => {
   console.log("UNHANDLED REJECTION! 💥 Shutting down...");

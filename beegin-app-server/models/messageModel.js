@@ -19,6 +19,11 @@ const Messageschema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a message content'],
   },
+  status: {
+      type: String,
+      default: "sent",
+      enum: ["sent", "delivered", "seen"]
+  },
   createdAt: {
     type: Date,
     default: Date.now,
