@@ -94,7 +94,7 @@ CommentSchema.pre(/^find/, function (next) {
     populate: {
       path: "profile",
       model: "Profile",
-      select: "name avatar firstname lastname",
+      select: "name avatar firstname lastname slug",
     },
   });
   next();

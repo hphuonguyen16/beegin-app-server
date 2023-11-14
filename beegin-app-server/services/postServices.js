@@ -122,7 +122,7 @@ exports.getPostById = (id) => {
           populate: {
             path: "profile",
             model: "Profile",
-            select: "avatar firstname lastname -user",
+            select: "avatar firstname lastname -user slug",
           },
         });
       if (!post) {
@@ -151,7 +151,7 @@ exports.getPostsByMe = (userId) => {
           populate: {
             path: "profile",
             model: "Profile",
-            select: "avatar firstname lastname",
+            select: "avatar firstname lastname slug",
           },
         })
         .sort({ createdAt: -1 });
@@ -261,7 +261,7 @@ exports.getPostsByHashtag = (hashtag, query) => {
         populate: {
           path: "profile",
           model: "Profile",
-          select: "avatar firstname lastname",
+          select: "avatar firstname lastname slug",
         },
       });
       const posts = await postFeatures.query;

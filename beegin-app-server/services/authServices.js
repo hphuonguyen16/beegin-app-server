@@ -12,6 +12,7 @@ exports.signup = (data) => {
         !data.passwordConfirm ||
         !data.firstname ||
         !data.lastname ||
+        !data.slug ||
         data.gender === undefined
       ) {
         reject(new AppError("Please fill in all required fields", 400));
@@ -36,6 +37,7 @@ exports.signup = (data) => {
           bio: data.bio,
           birthday: data.birthday,
           user: user.id,
+          slug: data.slug,
         });
         const url = `${process.env.CLIENT_URL}/verify/${user._id}/${verifyToken}`;
         await sendEmail(user.email, "Email Verification", url);
