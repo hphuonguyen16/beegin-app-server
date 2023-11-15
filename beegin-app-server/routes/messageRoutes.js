@@ -18,4 +18,6 @@ router
     .delete(messageController.deleteMessage)
     .put(messageController.updateMessageStatus)
 
+router.put("/", messageController.updateMessageReaction)
+
 module.exports = router;

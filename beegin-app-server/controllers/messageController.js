@@ -31,3 +31,8 @@ exports.updateMessageStatus = catchAsync(async (req, res, next) => {
     const data = await messageService.updateMessageStatus(req.user.id, req.params.id, req.body.status);
     res.status(201).json(data);
 })
+
+exports.updateMessageReaction = catchAsync(async (req, res, next) => {
+    const data = await messageService.updateMessageReaction(req.body.id, req.body.reaction);
+    res.status(201).json(data);
+})

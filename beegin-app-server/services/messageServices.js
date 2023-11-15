@@ -20,18 +20,26 @@ exports.getFriendsAndRecentMessage = (id) => {
 
                 const friends = await ProfileModel.find({ user: { $in: friendIds } }).lean();
                 const projectFriends = await Promise.all(friends.map(async (friend) => {
-                    const msg = await MessageModel.findOne({
+                    const lastMsg = await MessageModel.findOne({
                         $or: [
                             { $and: [{ sender: id }, { receiver: friend.user }] },
                             { $and: [{ sender: friend.user }, { receiver: id }] }]
                     }).sort({ createdAt: -1 }).lean()
+
+                    const lastSeenMsg = await MessageModel.findOne({
+                        status: "seen", sender: friend.user, receiver: id
+                    }).sort({ createdAt: -1 }).lean();
+
+                    const unseenCount = lastSeenMsg === null ? 0 : await MessageModel.countDocuments({ createdAt: { $gt: lastSeenMsg.createdAt }, sender: friend.user, receiver: id }).lean();
+
                     return {
                         friend: friend,
-                        message: msg === null ? null : {
-                            id: msg._id,
-                            fromSelf: msg.sender.toString() === id,
-                            type: msg.type,
-                            content: msg.content
+                        unseenMessageCount: unseenCount,
+                        message: lastMsg === null ? null : {
+                            id: lastMsg._id,
+                            fromSelf: lastMsg.sender.toString() === id,
+                            type: lastMsg.type,
+                            content: lastMsg.content
                         }
                     }
                 }))
@@ -63,6 +71,8 @@ exports.getFriendMessages = (userId, friendId) => {
                         fromSelf: msg.sender.toString() === userId,
                         type: msg.type,
                         content: msg.content,
+                        status: msg.status,
+                        reaction: msg.reaction,
                         createdAt: msg.createdAt
                     }
                 })
@@ -192,7 +202,33 @@ exports.updateMessageStatus = (userId, receiver, status) => {
                         status: status,
                     }
                 );
+
+                resolve({
+                    status: "success"
+                });
             }
+
+        } catch (error) {
+            reject(error);
+        }
+    })
+};
+
+exports.updateMessageReaction = (id, reaction) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const message = await MessageModel.findById(id);
+            if (reaction === message.reaction) {
+                message.reaction = "";
+            } else {
+                message.reaction = reaction;
+            }
+
+            message.save();
+
+            resolve({
+                status: "success"
+            });
 
         } catch (error) {
             reject(error);

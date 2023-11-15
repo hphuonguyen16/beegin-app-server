@@ -20,9 +20,14 @@ const Messageschema = new mongoose.Schema({
     required: [true, 'Please provide a message content'],
   },
   status: {
-      type: String,
-      default: "sent",
-      enum: ["sent", "delivered", "seen"]
+    type: String,
+    default: "sent",
+    enum: ["sent", "delivered", "seen"]
+  },
+  reaction: {
+    type: String,
+    default: "",
+    enum: ["", 'like', 'love', 'haha', 'wow', 'sad', 'angry']
   },
   createdAt: {
     type: Date,
