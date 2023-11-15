@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
   socket.on("send-msg", (data) => {
     const sendUserSocket = onlineUsers.find((user) => user.userId === data.receiver);
     if (sendUserSocket) {
-      socket.to(sendUserSocket.socketId).emit("msg-recieve", data);
+      socket.to(sendUserSocket.socketId).emit("msg-receive", data);
     }
   });
 
@@ -92,6 +92,13 @@ io.on("connection", (socket) => {
       socket.to(sendUserSocket.socketId).emit("message-seen");
     }
   });
+
+  socket.on("react", (data) => {
+    const sendUserSocket = onlineUsers.find((user) => user.userId === data.receiver);
+    if(sendUserSocket) {
+      socket.to(sendUserSocket.socketId).emit("reaction-receive", data)
+    }
+  })
 });
 
 
