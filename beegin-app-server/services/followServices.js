@@ -2,7 +2,9 @@ const User = require("../models/userModel");
 const FollowModel = require("./../models/followModel");
 const ProfileModel = require("./../models/profileModel");
 const NotificationModel = require("./../models/notificationModel");
+const UserPreferenceModel = require("./../models/userPreferenceModel");
 const AppError = require("./../utils/appError");
+const { isEqual } = require('lodash');
 
 exports.followingOtherUser = (followingId, id) => {
   return new Promise(async (resolve, reject) => {
@@ -184,7 +186,14 @@ const getGeneralFollowingCount = async (userId, otherId) => {
   );
   return commonFollowings;
 };
-
+const suggestSimilarInterests = async (userId, otherId) => {
+  const listA = await UserPreferenceModel.find({ user: userId });
+  const listB = await UserPreferenceModel.find({ user: otherId });
+  const preferenceListA = listA.map((item) => item.category.toString());
+  const preferenceListB = listB.map((item) => item.category.toString());
+  const equal = isEqual(preferenceListA.sort(), preferenceListB.sort());
+  return equal;
+};
 exports.suggestFollow = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -192,6 +201,7 @@ exports.suggestFollow = (userId) => {
         reject(new AppError(`Missing parameter`, 400));
       } else {
         let listSuggest = [];
+        let listCommonPreference = [];
         const users = await User.find({ role: "user" })
           .populate({
             path: "profile",
@@ -202,17 +212,25 @@ exports.suggestFollow = (userId) => {
         for (const user of users) {
           let check = await isFollowing(userId, user._id);
           if (!check && userId !== user._id.toString()) {
-            let count = await getGeneralFollowingCount(userId, user._id);
-            if (count.length > 0) {
-              listSuggest.push({ user, count: count.length });
+            let checkPreference = await suggestSimilarInterests(userId, user._id);
+            if (checkPreference)
+            {
+              listCommonPreference.push({ user});
             }
-          }
+            else {
+              let count = await getGeneralFollowingCount(userId, user._id);
+              if (count.length > 0) {
+                  listSuggest.push({ user, count: count.length });
+                }
+              }
+            }
         }
-        listSuggest.sort((a, b) => b.count - a.count);
-        const top5Suggest = listSuggest.slice(0, 5);
+         listSuggest.sort((a, b) => b.count - a.count);
+            const top5Suggest = listSuggest.slice(0, 5);
         resolve({
           status: "Success",
           data: top5Suggest,
+          data2:listCommonPreference
         });
       }
     } catch (error) {
