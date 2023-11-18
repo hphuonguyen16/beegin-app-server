@@ -45,12 +45,19 @@ const checkPost = async (postId, reject, userId = null) => {
 exports.createPost = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
+      // set the root parent for sharing post
+      if (data.parent) {
+        const parentPost = await Post.findById(data.parent);
+        data.parent = parentPost.id;
+        console.log(data.parent);
+      }
       const post = await Post.create({
         content: data.content,
         images: data.images,
         imageVideo: data.imageVideo,
         categories: data.categories,
         user: data.user,
+        parent: data.parent,
       });
       await post.populate("user", "_id profile");
       await post.populate("categories");
@@ -114,17 +121,7 @@ exports.deletePost = (postId, userId) => {
 exports.getPostById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const post = await Post.findById(id)
-        .populate("user")
-        .populate({
-          path: "user",
-          select: "_id email profile",
-          populate: {
-            path: "profile",
-            model: "Profile",
-            select: "avatar firstname lastname -user slug",
-          },
-        });
+      const post = await Post.findById(id);
       if (!post) {
         reject(new AppError(`Post not found`, 404));
       } else if (!post.isActived) {
@@ -144,17 +141,7 @@ exports.getPostById = (id) => {
 exports.getPostsByMe = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const posts = await Post.find({ user: userId })
-        .populate({
-          path: "user",
-          select: "_id email profile",
-          populate: {
-            path: "profile",
-            model: "Profile",
-            select: "avatar firstname lastname slug",
-          },
-        })
-        .sort({ createdAt: -1 });
+      const posts = await Post.find({ user: userId }).sort({ createdAt: -1 });
       resolve({
         status: "success",
         results: posts.length,
