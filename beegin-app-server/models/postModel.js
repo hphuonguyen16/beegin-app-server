@@ -33,6 +33,10 @@ const PostSchema = new mongoose.Schema(
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: 'Post', // Reference to the Post model
     // },
+    parent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
     numLikes: {
       type: Number,
       default: 0,
@@ -60,31 +64,51 @@ const PostSchema = new mongoose.Schema(
   }
 );
 
+PostSchema.statics.setNumShares = async function (postId) {
+  let numShares = 0;
+  if (postId) {
+    numShares = await this.countDocuments({ parent: postId });
+  }
+  console.log(numShares);
+  await this.findByIdAndUpdate(postId, { numShares: numShares });
+};
+
 PostSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "categories",
-    select: "-createdAt -__v",
-  });
+  this.populate("parent")
+    .populate({
+      path: "user",
+      select: "_id email profile",
+      populate: {
+        path: "profile",
+        model: "Profile",
+        select: "avatar firstname lastname -user slug",
+      },
+    })
+    .populate({
+      path: "categories",
+      select: "-createdAt -__v",
+    });
   next();
 });
 
 PostSchema.post("save", async function (doc, next) {
+  if (doc.parent) {
+    await doc.constructor.setNumShares(doc.parent);
+  }
   if (doc.content) {
     console.log(doc);
     const hashtags = doc.content.match(/#(\w+)/g);
     if (hashtags?.length > 0) {
       const promises = hashtags.map(async (element) => {
         let hashtag = await Hashtag.findOne({ name: element });
-        console.log("find", hashtag);
         if (!hashtag) {
           hashtag = await Hashtag.create({ name: element });
-          console.log("create", hashtag);
         }
         const newHashtagPost = await HashtagPost.create({
           hashtag: hashtag._id,
           post: doc._id,
         });
-        console.log(newHashtagPost);
+        // console.log(newHashtagPost);
       });
       Promise.all(promises)
         .then(() => next())
@@ -95,6 +119,7 @@ PostSchema.post("save", async function (doc, next) {
   } else {
     next();
   }
+  next();
 });
 
 PostSchema.pre("findOneAndUpdate", async function (next) {
@@ -104,19 +129,19 @@ PostSchema.pre("findOneAndUpdate", async function (next) {
     const post = await this.model.findOne(this.getFilter());
 
     const oldHashtags = post.content.match(/#(\w+)/g) || [];
-    console.log("old", oldHashtags);
+    // console.log("old", oldHashtags);
     const newHashtags = updatedFields.content.match(/#(\w+)/g) || [];
-    console.log("new", newHashtags);
+    // console.log("new", newHashtags);
     // Find hashtags that were removed
     const removedHashtags = oldHashtags.filter(
       (oldHashtag) => !newHashtags.includes(oldHashtag)
     );
-    console.log("removed", removedHashtags);
+    // console.log("removed", removedHashtags);
     // Find hashtags that are new
     const addedHashtags = newHashtags.filter(
       (newHashtag) => !oldHashtags.includes(newHashtag)
     );
-    console.log("added", addedHashtags);
+    // console.log("added", addedHashtags);
     // Delete old hashtagPosts
     const deletePromise = removedHashtags.map(async (element) => {
       let hashtag = await Hashtag.findOne({ name: element });
