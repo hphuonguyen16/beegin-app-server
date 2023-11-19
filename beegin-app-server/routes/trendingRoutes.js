@@ -7,4 +7,6 @@ const router = express.Router();
 router
   .route("/hashtags")
   .get(trendingController.setLimit, trendingController.getTrendingHashtag);
+
+router.route("/posts").get(trendingController.getTrendingPosts);
 module.exports = router;
