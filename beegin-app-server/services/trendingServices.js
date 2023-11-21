@@ -3,13 +3,18 @@ const TrendingHashtag = require("./../models/trendingHashtagModel");
 const Post = require("./../models/postModel");
 const TrendingPost = require("./../models/trendingPostModel");
 
-exports.determineTrendingHashtags = (period = 7) => {
+exports.determineTrendingHashtags = (period = 30) => {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log("update trending hashtag");
+      console.log("update trending hashtag", new Date());
       const day = new Date();
       day.setDate(day.getDate() - period);
       const stat = await HashtagPost.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: day },
+          },
+        },
         {
           $lookup: {
             from: "posts", // Name of the "Post" collection
@@ -88,6 +93,7 @@ exports.determineTrendingHashtags = (period = 7) => {
         },
       ]);
       const result = [...stat, ...stats];
+      console.log(result);
       await TrendingHashtag.deleteMany({});
       await TrendingHashtag.create(result);
       resolve({
