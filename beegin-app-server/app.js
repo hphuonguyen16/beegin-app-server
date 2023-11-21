@@ -9,7 +9,6 @@ const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const multer = require("multer");
-const session = require("express-session");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -28,41 +27,16 @@ const cors = require("cors");
 const app = express();
 const upload = multer();
 
-app.use(express.json({ limit: "10kb" }));
 app.use(
   cors({
     // origin: ["http://localhost:3000", "https://beegin-app.vercel.app"], // Replace with the origin of your client application
-    origin: "https://beegin-app.vercel.app",
+    // origin: ["http://localhost:3000", "https://beegin-app.vercel.app"],
+    origin: "*",
     credentials: true, // Allow credentials (cookies) to be sent
   })
 );
-app.use(cookieParser());
-app.use(
-  session({
-    resave: false,
-    saveUninitialized: false,
-    secret: "session",
-    cookie: {
-      maxAge: 1000 * 60 * 60,
-      sameSite: "none",
-      domain: "https://beegin-app.vercel.app",
-      secure: true,
-    },
-  })
-);
 
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Credentials", true);
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept"
-  );
-  next();
-});
-
-app.set("trust proxy", 1);
+app.set("trust proxy", true);
 // app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 
@@ -87,9 +61,9 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 
 // Body parser, reading data from body into req.body
-// app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-
+app.use(cookieParser());
 app.use(bodyParser());
 app.use(upload.any());
 app.use(express.static("public"));
