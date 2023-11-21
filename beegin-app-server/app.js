@@ -34,7 +34,8 @@ app.use(
   })
 );
 
-app.set("view engine", "pug");
+app.set("trust proxy", true);
+// app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 
 // 1) GLOBAL MIDDLEWARES
