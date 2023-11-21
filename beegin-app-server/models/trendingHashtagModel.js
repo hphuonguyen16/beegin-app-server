@@ -10,6 +10,7 @@ const TrendingHashtagSchema = new mongoose.Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category", // Reference to the Hashtag model
+      default: null,
     },
     count: {
       type: Number,

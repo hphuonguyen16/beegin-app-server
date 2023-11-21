@@ -85,7 +85,8 @@ exports.determineTrendingHashtags = (period = 30) => {
             _id: 0,
             hashtag: "$_id",
             count: 1,
-            category: null,
+            // category: null,
+            category: 1,
           },
         },
         {
@@ -94,8 +95,9 @@ exports.determineTrendingHashtags = (period = 30) => {
       ]);
       const result = [...stat, ...stats];
       console.log(result);
+      console.log(result.length);
       await TrendingHashtag.deleteMany({});
-      await TrendingHashtag.create(result);
+      await TrendingHashtag.insertMany(result);
       resolve({
         status: "success",
         // data: result,
@@ -109,8 +111,8 @@ exports.determineTrendingHashtags = (period = 30) => {
 exports.getTrendingHashtag = (limit = 10) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let data = await TrendingHashtag.find({}).sort("-count").limit(limit);
-
+      let data = await TrendingHashtag.find().sort("-count");
+      console.log(data);
       // filter similar hashhtag
       const groupedData = {};
       data.forEach((item) => {
