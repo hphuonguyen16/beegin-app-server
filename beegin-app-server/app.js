@@ -30,8 +30,7 @@ const upload = multer();
 app.use(
   cors({
     // origin: ["http://localhost:3000", "https://beegin-app.vercel.app"], // Replace with the origin of your client application
-    // origin: ["http://localhost:3000", "https://beegin-app.vercel.app"],
-    origin: "*",
+    origin: ["http://localhost:3000", "https://beegin-app.vercel.app"],
     credentials: true, // Allow credentials (cookies) to be sent
   })
 );
