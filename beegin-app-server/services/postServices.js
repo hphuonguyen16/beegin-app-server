@@ -59,12 +59,14 @@ exports.createPost = (data) => {
         user: data.user,
         parent: data.parent,
       });
-      await post.populate("user", "_id profile");
-      await post.populate("categories");
-      resolve({
-        status: "success",
-        data: post,
-      });
+
+      if (post) {
+        const result = await Post.findById(post.id);
+        resolve({
+          status: "success",
+          data: result,
+        });
+      }
     } catch (err) {
       reject(err);
     }

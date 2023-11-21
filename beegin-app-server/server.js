@@ -31,6 +31,7 @@ const conSuccess = mongoose.connection;
 conSuccess.once("open", () => {
   //run this every certain time after database connection successfully
   setInterval(trendingServices.determineTrendingHashtags, 60000);
+  setInterval(trendingServices.determineTrendingPosts, 600000);
 });
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
@@ -49,27 +50,36 @@ io.on("connection", (socket) => {
   global.chatSocket = socket;
   socket.on("add-user", (userId) => {
     onlineUsers.push({ userId: userId, socketId: socket.id });
-    io.sockets.emit("get-users", onlineUsers.map(user => user.userId));
+    io.sockets.emit(
+      "get-users",
+      onlineUsers.map((user) => user.userId)
+    );
   });
 
   socket.on("disconnect", () => {
-    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id)
+    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
     console.log("user disconnected", onlineUsers);
     // send all online users to all users
-    io.emit("get-users", onlineUsers.map(user => user.userId));
+    io.emit(
+      "get-users",
+      onlineUsers.map((user) => user.userId)
+    );
   });
 
   socket.on("offline", () => {
     // remove user from active users
-    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id)
+    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
     console.log("user is offline", onlineUsers);
     // send all online users to all users
-    io.emit("get-users", onlineUsers.map(user => user.userId));
+    io.emit(
+      "get-users",
+      onlineUsers.map((user) => user.userId)
+    );
   });
 
   socket.on("typing", (data) => {
     const user = onlineUsers.find((user) => user.userId === data.receiver);
-    console.log("typing")
+    console.log("typing");
     if (user) {
       socket.to(user.socketId).emit("get-typing", data);
       // console.log("typing: " + data)
@@ -77,7 +87,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send-msg", (data) => {
-    const sendUserSocket = onlineUsers.find((user) => user.userId === data.receiver);
+    const sendUserSocket = onlineUsers.find(
+      (user) => user.userId === data.receiver
+    );
     if (sendUserSocket) {
       socket.to(sendUserSocket.socketId).emit("msg-receive", data);
     }
@@ -86,7 +98,9 @@ io.on("connection", (socket) => {
   socket.on("message-seen-status", (data) => {
     data.status = "seen";
     updateMessageStatus(data.userId, data.receiver, data.status);
-    const sendUserSocket = onlineUsers.find((user) => user.userId === data.receiver);
+    const sendUserSocket = onlineUsers.find(
+      (user) => user.userId === data.receiver
+    );
     // console.log("Message seen by: ", data)
     if (sendUserSocket) {
       socket.to(sendUserSocket.socketId).emit("message-seen");
@@ -94,14 +108,14 @@ io.on("connection", (socket) => {
   });
 
   socket.on("react", (data) => {
-    const sendUserSocket = onlineUsers.find((user) => user.userId === data.receiver);
-    if(sendUserSocket) {
-      socket.to(sendUserSocket.socketId).emit("reaction-receive", data)
+    const sendUserSocket = onlineUsers.find(
+      (user) => user.userId === data.receiver
+    );
+    if (sendUserSocket) {
+      socket.to(sendUserSocket.socketId).emit("reaction-receive", data);
     }
-  })
+  });
 });
-
-
 
 process.on("unhandledRejection", (err) => {
   console.log("UNHANDLED REJECTION! 💥 Shutting down...");
