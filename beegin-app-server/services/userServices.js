@@ -65,7 +65,8 @@ exports.updateMe = (id,data) => {
                    bio: data.bio,
                    address: data.address,
                    background: data.background,
-                   gender: data.gender,
+                    gender: data.gender,
+                   slug:data.slug
                })
                 resolve({
                     status: 'Success',
