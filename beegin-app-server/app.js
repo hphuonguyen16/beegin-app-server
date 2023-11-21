@@ -9,6 +9,7 @@ const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const multer = require("multer");
+const session = require("express-session");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -35,6 +36,18 @@ app.use(
   })
 );
 
+app.use(
+  session({
+    resave: false,
+    saveUninitialized: false,
+    secret: "session",
+    cookie: {
+      maxAge: 1000 * 60 * 60,
+      sameSite: "none",
+      secure: true,
+    },
+  })
+);
 app.set("trust proxy", 1);
 // app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
