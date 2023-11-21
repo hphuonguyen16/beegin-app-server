@@ -29,12 +29,12 @@ const upload = multer();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://beegin-app.vercel.app/"], // Replace with the origin of your client application
+    origin: ["http://localhost:3000", "https://beegin-app.vercel.app"], // Replace with the origin of your client application
     credentials: true, // Allow credentials (cookies) to be sent
   })
 );
 
-app.set("trust proxy", true);
+app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
 // app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 
