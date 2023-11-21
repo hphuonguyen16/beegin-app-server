@@ -30,7 +30,7 @@ mongoose
 const conSuccess = mongoose.connection;
 conSuccess.once("open", () => {
   //run this every certain time after database connection successfully
-  setInterval(trendingServices.determineTrendingHashtags, 10000);
+  setInterval(trendingServices.determineTrendingHashtags, 60000);
   setInterval(trendingServices.determineTrendingPosts, 600000);
 });
 const port = process.env.PORT || 3000;

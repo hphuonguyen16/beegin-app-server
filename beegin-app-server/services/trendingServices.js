@@ -94,8 +94,6 @@ exports.determineTrendingHashtags = (period = 30) => {
         },
       ]);
       const result = [...stat, ...stats];
-      console.log(result);
-      console.log(result.length);
       await TrendingHashtag.deleteMany({});
       await TrendingHashtag.insertMany(result);
       resolve({
