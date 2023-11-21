@@ -22,7 +22,6 @@ const messageRouter = require("./routes/messageRoutes");
 const searchRouter = require("./routes/searchRoutes");
 const notificationRouter = require("./routes/notificationRouters");
 
-
 const cors = require("cors");
 
 const app = express();
@@ -30,7 +29,7 @@ const upload = multer();
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Replace with the origin of your client application
+    origin: ["http://localhost:3000", "https://beegin-app.vercel.app/"], // Replace with the origin of your client application
     credentials: true, // Allow credentials (cookies) to be sent
   })
 );
@@ -103,7 +102,6 @@ app.use("/api/v1/trending/", trendingRouter);
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/search", searchRouter);
 app.use("/api/v1/notification", notificationRouter);
-
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
