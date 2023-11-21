@@ -94,8 +94,6 @@ exports.determineTrendingHashtags = (period = 30) => {
         },
       ]);
       const result = [...stat, ...stats];
-      console.log(result);
-      console.log(result.length);
       await TrendingHashtag.deleteMany({});
       await TrendingHashtag.insertMany(result);
       resolve({
@@ -112,7 +110,6 @@ exports.getTrendingHashtag = (limit = 10) => {
   return new Promise(async (resolve, reject) => {
     try {
       let data = await TrendingHashtag.find().sort("-count");
-      console.log(data);
       // filter similar hashhtag
       const groupedData = {};
       data.forEach((item) => {
