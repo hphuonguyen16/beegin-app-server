@@ -124,7 +124,7 @@ exports.getTrendingHashtag = (limit = 10) => {
         }
       });
 
-      data = Object.values(groupedData);
+      data = Object.values(groupedData).slice(0, limit);
       resolve({
         status: "sucess",
         results: data.length,
