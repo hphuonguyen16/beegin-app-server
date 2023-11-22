@@ -59,7 +59,6 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
     console.log("user disconnected", onlineUsers);
-    // send all online users to all users
     io.emit(
       "get-users",
       onlineUsers.map((user) => user.userId)
@@ -67,10 +66,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("offline", () => {
-    // remove user from active users
     onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
     console.log("user is offline", onlineUsers);
-    // send all online users to all users
     io.emit(
       "get-users",
       onlineUsers.map((user) => user.userId)
@@ -82,7 +79,6 @@ io.on("connection", (socket) => {
     console.log("typing");
     if (user) {
       socket.to(user.socketId).emit("get-typing", data);
-      // console.log("typing: " + data)
     }
   });
 
