@@ -35,6 +35,7 @@ app.use(
   })
 );
 
+app.enable("trust proxy");
 app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
 // app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
