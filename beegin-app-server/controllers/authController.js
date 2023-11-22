@@ -18,8 +18,9 @@ const createAccessToken = (user, res) => {
   });
   const cookieOptions = {
     expires: new Date(Date.now() + 30 * 60 * 1000),
-    // httpOnly: true,
-    secure: false,
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
   };
   // if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
   // if (process.env.NODE_ENV === "development")
@@ -43,8 +44,9 @@ const createRefreshToken = async (user, res) => {
       Date.now() +
         process.env.JWT_COOKIE_REFRESH_TOKEN_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
-    // httpOnly: true,
-    secure: false,
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
   };
   if (process.env.NODE_ENV === "production") cookieOptionsRefresh.secure = true;
   res.cookie("refresh", refreshToken, cookieOptionsRefresh);
