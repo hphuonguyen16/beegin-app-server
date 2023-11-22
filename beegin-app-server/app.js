@@ -9,6 +9,7 @@ const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const multer = require("multer");
+const cookieSession = require("cookie-session");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -26,6 +27,15 @@ const cors = require("cors");
 
 const app = express();
 const upload = multer();
+
+app.use(
+  cookieSession({
+    secret: "",
+    sameSite: "none",
+    secure: true,
+    httpOnly: true,
+  })
+);
 
 app.use(
   cors({
