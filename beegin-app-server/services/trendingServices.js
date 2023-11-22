@@ -238,8 +238,10 @@ exports.determineTrendingPosts = (count = 5, period = 30) => {
 exports.getTrendingPostsByCategories = (categories) => {
   return new Promise(async (resolve, reject) => {
     try {
+      const categoryArray = categories.split(",");
+      console.log(categoryArray);
       const results = await TrendingPost.find({
-        category: { $in: categories },
+        category: { $in: categoryArray },
       })
         .populate("posts")
         .populate("category");
