@@ -28,6 +28,8 @@ const cors = require("cors");
 const app = express();
 const upload = multer();
 
+app.enable("trust proxy");
+app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
 app.use(
   cookieSession({
     secret: process.env.JWT_SECRET,
@@ -45,8 +47,6 @@ app.use(
   })
 );
 
-app.enable("trust proxy");
-app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
 // app.set("view engine", "pug");
 // app.set("views", path.join(__dirname, "views"));
 
