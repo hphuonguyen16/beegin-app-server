@@ -14,7 +14,7 @@ const signToken = (id, secret, expiresTime) => {
 
 const createAccessToken = (user, res) => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-    expiresIn: "1800s",
+    expiresIn: "10000s",
   });
   const cookieOptions = {
     expires: new Date(Date.now() + 30 * 60 * 1000),
