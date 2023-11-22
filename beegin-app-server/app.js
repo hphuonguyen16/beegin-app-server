@@ -30,7 +30,7 @@ const upload = multer();
 
 app.use(
   cookieSession({
-    secret: "",
+    secret: process.env.JWT_SECRET,
     sameSite: "none",
     secure: true,
     httpOnly: true,

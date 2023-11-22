@@ -21,9 +21,9 @@ const createAccessToken = (user, res) => {
     httpOnly: true,
     secure: false,
   };
-  // if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
-  // if (process.env.NODE_ENV === "development")
-  res.cookie("jwt", token, cookieOptions);
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+  if (process.env.NODE_ENV === "development")
+    res.cookie("jwt", token, cookieOptions);
   return token;
 };
 
