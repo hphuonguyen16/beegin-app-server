@@ -4,7 +4,7 @@ const ProfileModel = require("./../models/profileModel");
 const NotificationModel = require("./../models/notificationModel");
 const UserPreferenceModel = require("./../models/userPreferenceModel");
 const AppError = require("./../utils/appError");
-const { isEqual } = require('lodash');
+const { isEqual } = require("lodash");
 
 exports.followingOtherUser = (followingId, id) => {
   return new Promise(async (resolve, reject) => {
@@ -22,10 +22,12 @@ exports.followingOtherUser = (followingId, id) => {
             follower: id,
             following: followingId,
           });
-          const profile = await ProfileModel.findOne({ user: id }).select("firstname lastname username")
+          const profile = await ProfileModel.findOne({ user: id }).select(
+            "firstname lastname username"
+          );
           await NotificationModel.create({
             user: followingId,
-            content:`${profile.firstname} ${profile.lastname} has followed you`,
+            content: `${profile.firstname} ${profile.lastname} has followed you`,
           });
           resolve({
             status: "Success",
@@ -50,26 +52,25 @@ const isFollowing = async (idFollower, followingId) => {
 };
 exports.getAllFollowings = (id) => {
   return new Promise(async (resolve, reject) => {
-    
     try {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
       } else {
         const data = await FollowModel.find({ follower: id });
-        const listFollowing = [];
-        for (const follow of data) {
-          const following = await ProfileModel.find({
-            user: follow.following,
-          }).select("firstname lastname avatar username");
-          const followingData = {
-            userId: follow.following,
-            profile: following,
-          };
-          listFollowing.push(followingData);
-        }
+        // const listFollowing = [];
+        // for (const follow of data) {
+        //   const following = await ProfileModel.find({
+        //     user: follow.following,
+        //   }).select("firstname lastname avatar username");
+        //   const followingData = {
+        //     userId: follow.following,
+        //     profile: following,
+        //   };
+        //   listFollowing.push(followingData);
+        // }
         resolve({
           status: "Success",
-          data: listFollowing,
+          data,
         });
       }
     } catch (error) {
@@ -83,23 +84,23 @@ exports.getAllFollowers = (id) => {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
       } else {
-        let data = await FollowModel.find({ following: id });
-        let listFollower = [];
-        for (const follow of data) {
-          let follower = await ProfileModel.find({
-            user: follow.follower,
-          }).select("firstname lastname avatar username");
-          let check = await isFollowing(id,follow.follower)
-          const followerData = {
-            userId: follow.follower,
-            profile: follower,
-            status:check
-          };
-          listFollower.push(followerData);
-        }
+        let data = await FollowModel.find({ following: id }).select('following');
+        // let listFollower = [];
+        // for (const follow of data) {
+        //   let follower = await ProfileModel.find({
+        //     user: follow.follower,
+        //   }).select("firstname lastname avatar username");
+        //   let check = await isFollowing(id, follow.follower);
+        //   const followerData = {
+        //     userId: follow.follower,
+        //     profile: follower,
+        //     status: check,
+        //   };
+        //   listFollower.push(followerData);
+        // }
         resolve({
           status: "Success",
-          data: listFollower,
+          data
         });
       }
     } catch (error) {
@@ -212,25 +213,26 @@ exports.suggestFollow = (userId) => {
         for (const user of users) {
           let check = await isFollowing(userId, user._id);
           if (!check && userId !== user._id.toString()) {
-            let checkPreference = await suggestSimilarInterests(userId, user._id);
-            if (checkPreference)
-            {
-              listCommonPreference.push({ user});
-            }
-            else {
+            let checkPreference = await suggestSimilarInterests(
+              userId,
+              user._id
+            );
+            if (checkPreference) {
+              listCommonPreference.push({ user });
+            } else {
               let count = await getGeneralFollowingCount(userId, user._id);
               if (count.length > 0) {
-                  listSuggest.push({ user, count: count.length });
-                }
+                listSuggest.push({ user, count: count.length });
               }
             }
+          }
         }
-         listSuggest.sort((a, b) => b.count - a.count);
-            const top5Suggest = listSuggest.slice(0, 5);
+        listSuggest.sort((a, b) => b.count - a.count);
+        const top5Suggest = listSuggest.slice(0, 5);
         resolve({
           status: "Success",
           data: top5Suggest,
-          data2:listCommonPreference
+          data2: listCommonPreference,
         });
       }
     } catch (error) {
