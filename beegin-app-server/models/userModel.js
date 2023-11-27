@@ -95,7 +95,7 @@ userSchema.pre("save", function (next) {
 
 userSchema.pre(/^find/, function (next) {
   // this points to the current query
-  this.find({ active: { $ne: false } }).select("email");
+  this.find({ active: { $ne: false } }).select("-verifyToken -refreshToken");
   this.populate('profile', 'firstname lastname avatar slug');
   next();
 }); 
