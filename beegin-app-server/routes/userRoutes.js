@@ -25,6 +25,7 @@ router.patch('/updateMe', userController.updateMe);
 router.delete('/deleteMe', userController.deleteMe);
 
 router.use(authController.restrictTo('admin'));
+router.get('/overview/:year', userController.getOverview); 
 
 router
   .route('/')

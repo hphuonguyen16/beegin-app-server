@@ -93,6 +93,12 @@ exports.updateMe = catchAsync(async (req, res, next) => {
             data
         )
 });
+exports.getOverview = catchAsync(async (req, res, next) => {
+    const data = await userServices.getOverview(req.params.year);
+        return res.status(200).json(
+            data
+        )
+});
 
 
 
