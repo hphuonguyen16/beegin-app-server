@@ -14,12 +14,13 @@ const signToken = (id, secret, expiresTime) => {
 
 const createAccessToken = (user, res) => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-    expiresIn: "1800s",
+    expiresIn: "10000s",
   });
   const cookieOptions = {
-    expires: new Date(Date.now() + 30 * 60 * 1000),
+    expires: new Date(Date.now() + 60 * 60 * 1000),
     httpOnly: true,
     secure: false,
+    sameSite: "none",
   };
   if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
   if (process.env.NODE_ENV === "development")
@@ -45,6 +46,7 @@ const createRefreshToken = async (user, res) => {
     ),
     httpOnly: true,
     secure: false,
+    sameSite: "none",
   };
   if (process.env.NODE_ENV === "production") cookieOptionsRefresh.secure = true;
   res.cookie("refresh", refreshToken, cookieOptionsRefresh);
@@ -78,7 +80,7 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
     refreshToken,
     process.env.JWT_REFRESH_SECRET
   );
-  const currentUser = await User.findById(decoded.id).populate('profile');
+  const currentUser = await User.findById(decoded.id).populate("profile");
 
   if (!currentUser) {
     return next(

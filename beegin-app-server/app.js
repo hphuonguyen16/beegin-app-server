@@ -9,6 +9,7 @@ const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const multer = require("multer");
+const cookieSession = require("cookie-session");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -27,16 +28,27 @@ const cors = require("cors");
 const app = express();
 const upload = multer();
 
+app.enable("trust proxy");
+app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
+app.use(
+  cookieSession({
+    secret: process.env.JWT_SECRET,
+    secure: process.env.NODE_ENV === "development" ? false : true,
+    httpOnly: process.env.NODE_ENV === "development" ? false : true,
+    sameSite: process.env.NODE_ENV === "development" ? false : "none",
+  })
+);
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://beegin-app.vercel.app/"], // Replace with the origin of your client application
+    // origin: ["http://localhost:3000", "https://beegin-app.vercel.app"], // Replace with the origin of your client application
+    origin: ["http://localhost:3000", "https://beegin-app.vercel.app"],
     credentials: true, // Allow credentials (cookies) to be sent
   })
 );
 
-app.set("trust proxy", true);
 // app.set("view engine", "pug");
-app.set("views", path.join(__dirname, "views"));
+// app.set("views", path.join(__dirname, "views"));
 
 // 1) GLOBAL MIDDLEWARES
 // Serving static files
