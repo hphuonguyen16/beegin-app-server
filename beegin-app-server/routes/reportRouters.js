@@ -8,7 +8,7 @@ const router = express.Router();
 // Protect all routes after this middleware
 router.use(authController.protect);
 // other user
-router.use(authController.restrictTo('user business'));
+router.use(authController.restrictTo('user'));
 router.post('/createReport', reportController.createReport);
 
 

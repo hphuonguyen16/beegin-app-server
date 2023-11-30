@@ -46,7 +46,7 @@ const createRefreshToken = async (user, res) => {
     ),
     httpOnly: true,
     secure: false,
-    sameSite: "none",
+    // sameSite: "none",
   };
   if (process.env.NODE_ENV === "production") cookieOptionsRefresh.secure = true;
   res.cookie("refresh", refreshToken, cookieOptionsRefresh);
