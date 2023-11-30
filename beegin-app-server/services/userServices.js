@@ -137,7 +137,7 @@ exports.getOverview = (year) => {
                 month: "$month",
                 year: "$year",
             },
-            userCount: { $sum: 1 },
+            postCount: { $sum: 1 },
             },
         },
         {
