@@ -56,18 +56,13 @@ exports.getAllFollowings = (id) => {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
       } else {
-        const data = await FollowModel.find({ follower: id });
-        // const listFollowing = [];
-        // for (const follow of data) {
-        //   const following = await ProfileModel.find({
-        //     user: follow.following,
-        //   }).select("firstname lastname avatar username");
-        //   const followingData = {
-        //     userId: follow.following,
-        //     profile: following,
-        //   };
-        //   listFollowing.push(followingData);
-        // }
+        const data = await FollowModel.find({ follower: id }).
+          populate({
+            path: "following",
+            model: "User",
+            select:"profile"
+          })
+          .select('following');
         resolve({
           status: "Success",
           data,
@@ -84,20 +79,12 @@ exports.getAllFollowers = (id) => {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
       } else {
-        let data = await FollowModel.find({ following: id }).select('following');
-        // let listFollower = [];
-        // for (const follow of data) {
-        //   let follower = await ProfileModel.find({
-        //     user: follow.follower,
-        //   }).select("firstname lastname avatar username");
-        //   let check = await isFollowing(id, follow.follower);
-        //   const followerData = {
-        //     userId: follow.follower,
-        //     profile: follower,
-        //     status: check,
-        //   };
-        //   listFollower.push(followerData);
-        // }
+        let data = await FollowModel.find({ following: id }).populate({
+            path: "follower",
+            model: "User",
+            select:"profile"
+        })
+          .select('follower');
         resolve({
           status: "Success",
           data

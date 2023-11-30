@@ -17,15 +17,15 @@ const FollowSchema = new mongoose.Schema({
   },
 });
 
-FollowSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "follower",
-  });
-  this.populate({
-    path: "following",
-  });
-  next();
-});
+// FollowSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: "follower",
+//   });
+//   this.populate({
+//     path: "following",
+//   });
+//   next();
+// });
 
 const FollowModel = mongoose.model("Follow", FollowSchema);
 
