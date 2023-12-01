@@ -5,17 +5,22 @@ const categoryController = require("./../controllers/categoryController");
 
 const router = express.Router();
 
-router.use(authController.protect);
+// router.use(authController.protect);
 
 router
   .route("/")
   .get(categoryController.getAllCategories)
-  .post(authController.restrictTo("admin"), categoryController.createCategory);
+  .post(
+    authController.protect,
+    authController.restrictTo("admin"),
+    categoryController.createCategory
+  );
 
 router
   .route("/:id")
   .get(categoryController.getCategory)
   .delete(
+    authController.protect,
     authController.restrictTo("admin"),
     categoryController.deleteCategory
   );
