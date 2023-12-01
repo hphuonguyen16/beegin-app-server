@@ -27,6 +27,7 @@ exports.signup = (data) => {
           passwordConfirm: data.passwordConfirm,
           role: data.role,
           verifyToken: verifyToken,
+          preferences: data.preferences
         });
         const profile = await ProfileModel.create({
           firstname: data.firstname,
