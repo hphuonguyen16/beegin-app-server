@@ -70,6 +70,7 @@ exports.getCommentsOfPost = (data, query) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { post, parent } = data;
+      console.log(parent);
       if (await checkPost(post, reject)) {
         const features = new APIFeatures(
           Comment.find({ post: data.post, parent: parent }),
@@ -80,10 +81,15 @@ exports.getCommentsOfPost = (data, query) => {
           .limitFields()
           .paginate();
         const comments = await features.query;
+        const total = await Comment.countDocuments({
+          post: data.post,
+          parent: parent,
+        });
 
         resolve({
           status: "success",
           results: comments.length,
+          total,
           data: comments,
         });
       }
