@@ -72,10 +72,12 @@ exports.getAll = (Model, popOptions) =>
       req.query,
       popOptions
     );
+    const total = await Model.countDocuments();
     // SEND RESPONSE
     res.status(200).json({
       status: "success",
       results: doc.length,
+      total,
       data: {
         data: doc,
       },
