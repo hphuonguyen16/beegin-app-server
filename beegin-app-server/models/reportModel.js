@@ -17,7 +17,7 @@ const ReportSchema = new mongoose.Schema({
         },
     status: {
         type: String,
-        enum: ["Processing", "Done"],
+        enum: ["Processing", "Accepted", "Rejected"],
         default: "Processing",
         },
     processingDate: {
