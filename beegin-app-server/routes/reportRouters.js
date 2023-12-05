@@ -7,9 +7,12 @@ const router = express.Router();
 
 // Protect all routes after this middleware
 router.use(authController.protect);
-// other user
-router.use(authController.restrictTo('user'));
-router.post('/createReport', reportController.createReport);
+// user
+router.post('/createReport',authController.restrictTo('user'),reportController.createReport);
+// admin
+router.get('/getAllReports', authController.restrictTo('admin'), reportController.getAllReports);
+router.post('/reportProcessing',authController.restrictTo('admin'),reportController.reportProcessing);
+
 
 
 
