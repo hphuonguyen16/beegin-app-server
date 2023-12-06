@@ -277,7 +277,11 @@ exports.searchPosts = (searchText, query, media = null) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!searchText) reject(new AppError(`Empty search string`, 400));
-      const regex = new RegExp(searchText, "i");
+      // const regex = new RegExp(`(?<!#)\\b${searchText}\\b`, "iu");
+      const regex = new RegExp(
+        `(?<![#\\p{L}])${searchText}(?![#\\p{L}])`,
+        "iu"
+      );
       let filter = { content: regex };
       if (media === "media")
         filter.$and = [
