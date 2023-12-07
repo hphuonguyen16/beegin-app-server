@@ -179,6 +179,9 @@ const suggestSimilarInterests = async (userId, otherId) => {
     "category",
     { user: userId }
   );
+  if (preferenceListA.length === 0) {
+    return false;
+  }
   const preferenceListB = await UserPreferenceModel.distinct(
     "category",
     { user: otherId }
@@ -198,15 +201,17 @@ exports.suggestFollow = async (userId) => {
       .select("profile");
 
     const promises = users.map(async (user) => {
-      const check = await isFollowing(userId, user._id);
-      if (!check && userId !== user._id.toString()) {
-        const checkPreference = await suggestSimilarInterests(userId, user._id);
-        if (checkPreference) {
-          return { user };
-        } else {
-          const count = await getGeneralFollowingCount(userId, user._id);
-          if (count.length > 0) {
-            return { user, count: count.length };
+      if (user.profile) {
+        const check = await isFollowing(userId, user._id);
+        if (!check && userId !== user._id.toString()) {
+          const checkPreference = await suggestSimilarInterests(userId, user._id);
+          if (checkPreference) {
+            return { user };
+          } else {
+            const count = await getGeneralFollowingCount(userId, user._id);
+            if (count.length > 0) {
+              return { user, count: count.length };
+            }
           }
         }
       }
@@ -225,6 +230,7 @@ exports.suggestFollow = async (userId) => {
     throw error;
   }
 };
+
 exports.getFriends = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
