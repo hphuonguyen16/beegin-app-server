@@ -41,7 +41,6 @@ PostTransactionSchema.post("findOneAndUpdate", async function (doc, next) {
     let status = "pending";
     status = doc.status === "success" ? "approved" : "deferred";
     const postId = doc.post;
-    console.log(postId);
     const post = await BusinessPost.findOneAndUpdate(
       { _id: postId },
       {
@@ -49,7 +48,6 @@ PostTransactionSchema.post("findOneAndUpdate", async function (doc, next) {
       },
       { new: true }
     );
-    console.log(post);
   }
 
   next();

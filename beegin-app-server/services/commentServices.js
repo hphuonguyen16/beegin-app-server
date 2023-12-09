@@ -70,7 +70,6 @@ exports.getCommentsOfPost = (data, query) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { post, parent } = data;
-      console.log(parent);
       if (await checkPost(post, reject)) {
         const features = new APIFeatures(
           Comment.find({ post: data.post, parent: parent }),

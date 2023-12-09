@@ -107,7 +107,6 @@ PostSchema.post("save", async function (doc, next) {
           hashtag: hashtag._id,
           post: doc._id,
         });
-        // console.log(newHashtagPost);
       });
       Promise.all(promises)
         .then(() => next())
@@ -128,19 +127,15 @@ PostSchema.pre("findOneAndUpdate", async function (next) {
     const post = await this.model.findOne(this.getFilter());
 
     const oldHashtags = post.content.match(/#(\w+)/g) || [];
-    // console.log("old", oldHashtags);
     const newHashtags = updatedFields.content.match(/#(\w+)/g) || [];
-    // console.log("new", newHashtags);
     // Find hashtags that were removed
     const removedHashtags = oldHashtags.filter(
       (oldHashtag) => !newHashtags.includes(oldHashtag)
     );
-    // console.log("removed", removedHashtags);
     // Find hashtags that are new
     const addedHashtags = newHashtags.filter(
       (newHashtag) => !oldHashtags.includes(newHashtag)
     );
-    // console.log("added", addedHashtags);
     // Delete old hashtagPosts
     const deletePromise = removedHashtags.map(async (element) => {
       let hashtag = await Hashtag.findOne({ name: element });

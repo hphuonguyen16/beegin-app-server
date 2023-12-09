@@ -6,7 +6,6 @@ exports.createHashtags = (content) => {
     try {
       //filter post hashtags
       const hashtags = content.match(/#(\w+)/g);
-      console.log(hashtags);
       //create posthashtag
       // await hashtags.forEach(async (element) => {
       //   const hashtag = await Hashtag.findOne({ name: element });
