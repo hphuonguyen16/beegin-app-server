@@ -175,58 +175,62 @@ const getGeneralFollowingCount = async (userId, otherId) => {
   return commonFollowings;
 };
 const suggestSimilarInterests = async (userId, otherId) => {
-  const listA = await UserPreferenceModel.find({ user: userId });
-  const listB = await UserPreferenceModel.find({ user: otherId });
-  const preferenceListA = listA.map((item) => item.category.toString());
-  const preferenceListB = listB.map((item) => item.category.toString());
+  const preferenceListA = await UserPreferenceModel.distinct(
+    "category",
+    { user: userId }
+  );
+  if (preferenceListA.length === 0) {
+    return false;
+  }
+  const preferenceListB = await UserPreferenceModel.distinct(
+    "category",
+    { user: otherId }
+  );
+
   const equal = isEqual(preferenceListA.sort(), preferenceListB.sort());
   return equal;
 };
-exports.suggestFollow = (userId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      if (!userId) {
-        reject(new AppError(`Missing parameter`, 400));
-      } else {
-        let listSuggest = [];
-        let listCommonPreference = [];
-        const users = await User.find({ role: "user" })
-          .populate({
-            path: "profile",
-            model: "Profile",
-            select: "avatar firstname lastname -user username",
-          })
-          .select("profile");
-        for (const user of users) {
-          let check = await isFollowing(userId, user._id);
-          if (!check && userId !== user._id.toString()) {
-            let checkPreference = await suggestSimilarInterests(
-              userId,
-              user._id
-            );
-            if (checkPreference) {
-              listCommonPreference.push({ user });
-            } else {
-              let count = await getGeneralFollowingCount(userId, user._id);
-              if (count.length > 0) {
-                listSuggest.push({ user, count: count.length });
-              }
+exports.suggestFollow = async (userId) => {
+  try {
+    const users = await User.find({ role: "user" })
+      .populate({
+        path: "profile",
+        model: "Profile",
+        select: "avatar firstname lastname -user slug",
+      })
+      .select("profile");
+
+    const promises = users.map(async (user) => {
+      if (user.profile) {
+        const check = await isFollowing(userId, user._id);
+        if (!check && userId !== user._id.toString()) {
+          const checkPreference = await suggestSimilarInterests(userId, user._id);
+          if (checkPreference) {
+            return { user };
+          } else {
+            const count = await getGeneralFollowingCount(userId, user._id);
+            if (count.length > 0) {
+              return { user, count: count.length };
             }
           }
         }
-        listSuggest.sort((a, b) => b.count - a.count);
-        const top5Suggest = listSuggest.slice(0, 5);
-        resolve({
-          status: "Success",
-          data: top5Suggest,
-          data2: listCommonPreference,
-        });
       }
-    } catch (error) {
-      reject(error);
-    }
-  });
+    });
+
+    const results = await Promise.all(promises);
+    const listSuggest = results.filter(Boolean);
+    listSuggest.sort((a, b) => b.count - a.count);
+    const top10Suggest = listSuggest.slice(0, 10);
+
+    return {
+      status: "Success",
+      data: top10Suggest,
+    };
+  } catch (error) {
+    throw error;
+  }
 };
+
 exports.getFriends = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
