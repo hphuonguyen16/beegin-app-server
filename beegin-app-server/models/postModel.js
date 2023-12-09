@@ -77,7 +77,7 @@ PostSchema.pre(/^find/, function (next) {
   this.populate("parent")
     .populate({
       path: "user",
-      select: "_id email profile",
+      select: "_id email profile role",
       populate: {
         path: "profile",
         model: "Profile",
@@ -96,7 +96,6 @@ PostSchema.post("save", async function (doc, next) {
     await doc.constructor.setNumShares(doc.parent);
   }
   if (doc.content) {
-    console.log(doc);
     const hashtags = doc.content.match(/#(\w+)/g);
     if (hashtags?.length > 0) {
       const promises = hashtags.map(async (element) => {

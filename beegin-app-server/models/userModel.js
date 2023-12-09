@@ -56,6 +56,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    approved: {
+      type: Boolean,
+      default: false,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -96,9 +100,9 @@ userSchema.pre("save", function (next) {
 userSchema.pre(/^find/, function (next) {
   // this points to the current query
   this.find({ active: { $ne: false } }).select("-verifyToken -refreshToken");
-  this.populate('profile', 'firstname lastname avatar slug');
+  this.populate("profile", "firstname lastname avatar slug");
   next();
-}); 
+});
 
 userSchema.methods.correctPassword = async function (
   candidatePassword,
