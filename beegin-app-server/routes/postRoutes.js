@@ -15,6 +15,14 @@ router
     postController.createPost
   );
 
+router
+  .route("/business")
+  .post(
+    authController.restrictTo("business"),
+    postController.setUserId,
+    postController.createBusinessPost
+  );
+
 router.route("/me").get(postController.getAllPostsByMe);
 router.route("/getPostByUserId/:id").get(postController.getPostByUserId);
 

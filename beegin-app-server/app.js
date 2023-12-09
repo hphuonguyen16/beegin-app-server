@@ -23,6 +23,9 @@ const messageRouter = require("./routes/messageRoutes");
 const searchRouter = require("./routes/searchRoutes");
 const notificationRouter = require("./routes/notificationRouters");
 const reportRouter = require("./routes/reportRouters");
+const advertisementRouter = require("./routes/advertisementPlanRoutes");
+const transactionRouter = require("./routes/transactionRoutes");
+const priceRouter = require("./routes/unitPriceRoutes");
 
 const cors = require("cors");
 
@@ -50,6 +53,10 @@ app.use(
 // app.set("view engine", "pug");
 // app.set("views", path.join(__dirname, "views"));
 
+// view engine setup
+// app.set("views", path.join(__dirname, "views"));
+// app.set("view engine", "jade");
+
 // 1) GLOBAL MIDDLEWARES
 // Serving static files
 app.use(express.static(path.join(__dirname, "public")));
@@ -74,7 +81,7 @@ app.use("/api", limiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
-app.use(bodyParser());
+app.use(bodyParser.json());
 app.use(upload.any());
 app.use(express.static("public"));
 
@@ -93,7 +100,7 @@ app.use(
       "ratingsAverage",
       "maxGroupSize",
       "difficulty",
-      "price",
+      // "price",
     ],
   })
 );
@@ -116,6 +123,9 @@ app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/search", searchRouter);
 app.use("/api/v1/notification", notificationRouter);
 app.use("/api/v1/reports", reportRouter);
+app.use("/api/v1/advertisements", advertisementRouter);
+app.use("/api/v1/transactions", transactionRouter);
+app.use("/api/v1/prices", priceRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

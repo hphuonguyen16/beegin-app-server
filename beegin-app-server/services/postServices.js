@@ -1,4 +1,5 @@
 const Post = require("./../models/postModel");
+const BusinessPost = require("./../models/businessPostModel");
 const LikePost = require("./../models/likePostModel");
 const User = require("./../models/userModel");
 const HashtagPost = require("./../models/hashtagPostModel");
@@ -49,7 +50,6 @@ exports.createPost = (data) => {
       if (data.parent) {
         const parentPost = await Post.findById(data.parent);
         data.parent = parentPost.id;
-        console.log(data.parent);
       }
       const post = await Post.create({
         content: data.content,
@@ -301,6 +301,48 @@ exports.searchPosts = (searchText, query, media = null) => {
         results: posts.length,
         data: posts,
       });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+exports.createBusinessPost = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const {
+        content,
+        images,
+        imageVideo,
+        categories,
+        user,
+        activeDate,
+        expireDate,
+        targetLocation,
+        targetGender,
+        targetAge,
+        potentialReach,
+      } = data;
+      const post = await BusinessPost.create({
+        content: content,
+        images: images,
+        imageVideo: imageVideo,
+        categories: categories,
+        user: user,
+        activeDate: activeDate,
+        expireDate: expireDate,
+        targetLocation: targetLocation,
+        targetGender: targetGender,
+        targetAge: targetAge,
+        potentialReach: potentialReach,
+      });
+
+      if (post) {
+        resolve({
+          status: "success",
+          data: post,
+        });
+      }
     } catch (err) {
       reject(err);
     }

@@ -1,66 +1,75 @@
 const mongoose = require("mongoose");
-import { PostModel } from './postModel';
+const PostModel = require("./postModel");
+const UnitPrice = require("./unitPriceModel");
 
-const BusinessPostschema = new mongoose.Schema({
-  price: Number,
-  status: {
-    type: String,
-    enum: ['success', 'failed', 'pending'],
-    default: 'pending',
+const BusinessPostschema = new mongoose.Schema(
+  {
+    status: {
+      type: String,
+      enum: ["pending", "approved", "deferred", "expired"],
+      default: "pending",
+    },
+    potentialReach: {
+      type: Number,
+      default: 0,
+    },
+    actualReach: {
+      type: Number,
+      default: 0,
+    },
+    activeDate: {
+      type: Date,
+      required: [true, "Post must have activeDate"],
+    },
+    expireDate: {
+      type: Date,
+      required: [true, "Post must have expireDate"],
+    },
+    unitPrice: {
+      type: Number,
+    },
+    targetLocation: String,
+    targetAge: {
+      type: [Number],
+      default: [0, 999],
+      validate: {
+        validator: (arr) => Array.isArray(arr) && arr.length == 2,
+        message: () => `Age Range must have two elements`,
+      },
+    },
+    targetGender: {
+      type: String,
+      enum: ["other", "male", "female"],
+      default: "other",
+    },
   },
-  // title: String,
-  // content: String,
-  // images: [
-  //   {
-  //     type: String,
-  //     maxlength: [4, 'A BusinessPost can only have up to 4 image'],
-  //   },
-  // ],
-  // imageVideo: {
-  //   type: String,
-  //   maxlength: [1, 'A BusinessPost can only have up to 1 video'],
-  // },
-  // categories: [
-  //   //embedd category in BusinessPost
-  //   {
-  //     name: String,
-  //   },
-  // ],
-  // hashtags: [
-  //   {
-  //     name: String,
-  //   },
-  // ],
-  // user: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'User', // Reference to the User model
-  //   required: [true, 'A BusinessPost must belong to a user'],
-  // },
-  // sharedpost: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'BusinessPost', // Reference to the BusinessPost model
-  // },
-  // numLikes: {
-  //   type: Number,
-  //   default: 0,
-  // },
-  // numComments: {
-  //   type: Number,
-  //   default: 0,
-  // },
-  // numShares: {
-  //   type: Number,
-  //   default: 0,
-  // },
-  // createdAt: {
-  //   type: Date,
-  //   default: Date.now,
-  // },
-});
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
+BusinessPostschema.pre("save", async function (next) {
+  if (this.activeDate && this.expireDate) {
+    const start = new Date(this.activeDate);
+    const end = new Date(this.expireDate);
+    const timeDiff = Math.abs(end - start);
+    const daysDiff = Math.ceil(timeDiff / (24 * 60 * 60 * 1000));
+    let type = "day";
+    if (daysDiff > 30) {
+      type = "month";
+    }
+
+    const unitPrice = await UnitPrice.findOne({ type: type });
+
+    this.unitPrice = unitPrice.price;
+  }
+
+  next();
+});
 const BusinessPostModel = PostModel.discriminator(
-  'BusinessPost',
-  BusinessPostschema,
+  "BusinessPost",
+  BusinessPostschema
 );
 
 module.exports = BusinessPostModel;
