@@ -77,14 +77,14 @@ exports.createTransaction = catchAsync(async (req, res, next) => {
   }
 
   vnp_Params = sortObject(vnp_Params);
-  console.log(vnp_Params);
+  // console.log(vnp_Params);
   let querystring = require("qs");
   let signData = querystring.stringify(vnp_Params, { encode: false });
   let hmac = crypto.createHmac("sha512", secretKey);
   let signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
   vnp_Params["vnp_SecureHash"] = signed;
   vnpUrl += "?" + querystring.stringify(vnp_Params, { encode: false });
-  console.log(vnpUrl);
+  // console.log(vnpUrl);
   // res.redirect(vnpUrl);
   res.status(200).json({
     status: "success",
@@ -98,7 +98,6 @@ exports.executeTransaction = catchAsync(async (req, res, next) => {
 
   let orderId = vnp_Params["vnp_TxnRef"];
   let rspCode = vnp_Params["vnp_ResponseCode"];
-  console.log("order: ", orderId);
   delete vnp_Params["vnp_SecureHash"];
   delete vnp_Params["vnp_SecureHashType"];
 
@@ -142,7 +141,6 @@ exports.executeTransaction = catchAsync(async (req, res, next) => {
             status = "failed";
             // Ở đây cập nhật trạng thái giao dịch thanh toán thất bại vào CSDL của bạn
           }
-          console.log("status", status);
           const result = await TransactionServices.changeTransactionStatus(
             transaction.id,
             status

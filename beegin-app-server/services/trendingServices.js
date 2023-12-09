@@ -239,7 +239,6 @@ exports.getTrendingPostsByCategories = (categories) => {
   return new Promise(async (resolve, reject) => {
     try {
       const categoryArray = categories.split(",");
-      console.log(categoryArray);
       const results = await TrendingPost.find({
         category: { $in: categoryArray },
       })
