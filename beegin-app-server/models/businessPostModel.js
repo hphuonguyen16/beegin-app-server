@@ -39,8 +39,8 @@ const BusinessPostschema = new mongoose.Schema(
     },
     targetGender: {
       type: String,
-      enum: ["other", "male", "female"],
-      default: "other",
+      enum: ["any", "male", "female"],
+      default: "any",
     },
   },
   {

@@ -125,6 +125,7 @@ exports.executeTransaction = catchAsync(async (req, res, next) => {
   }
   if (secureHash === signed) {
     //kiểm tra checksum
+    let redirect_Url = `${process.env.CLIENT_URL}/business/advertisement`;
     if (checkOrderId) {
       if (checkAmount) {
         if (paymentStatus === "pending" || paymentStatus === "failed") {
@@ -145,21 +146,51 @@ exports.executeTransaction = catchAsync(async (req, res, next) => {
             transaction.id,
             status
           );
-          res.status(200).json({ RspCode: "00", status: status, data: result });
-        } else {
-          res.status(200).json({
-            RspCode: "02",
-            Message: "This payment has already been executed successfully",
+          // res.status(200).json({ RspCode: "00", status: status, data: result });
+          res.render("success", {
+            code: vnp_Params["vnp_ResponseCode"],
+            redirect_Url: redirect_Url,
           });
+        } else {
+          res.status(200).json({ RspCode: "97", Message: "Checksum failed" });
+          res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
         }
       } else {
-        res.status(200).json({ RspCode: "04", Message: "Amount invalid" });
+        // res.status(200).json({ RspCode: "04", Message: "Amount invalid" });
+        res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
       }
     } else {
-      res.status(200).json({ RspCode: "01", Message: "Payment not found" });
+      // res.status(200).json({ RspCode: "01", Message: "Payment not found" });
+      res.status(200).json({ RspCode: "01", Message: "Payment not foundk" });
     }
   } else {
+    // res.status(200).json({ RspCode: "97", Message: "Checksum failed" });
     res.status(200).json({ RspCode: "97", Message: "Checksum failed" });
+  }
+});
+exports.return = catchAsync(async (req, res, next) => {
+  let vnp_Params = req.query;
+
+  let secureHash = vnp_Params["vnp_SecureHash"];
+
+  delete vnp_Params["vnp_SecureHash"];
+  delete vnp_Params["vnp_SecureHashType"];
+
+  vnp_Params = sortObject(vnp_Params);
+  let tmnCode = config.get("vnp_TmnCode");
+  let secretKey = config.get("vnp_HashSecret");
+
+  let querystring = require("qs");
+  let signData = querystring.stringify(vnp_Params, { encode: false });
+  let hmac = crypto.createHmac("sha512", secretKey);
+  let signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+
+  if (secureHash === signed) {
+    //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
+
+    res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
+  } else {
+    res.render("success", { code: "97" });
   }
 });
 
