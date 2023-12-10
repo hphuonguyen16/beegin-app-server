@@ -5,7 +5,7 @@ const transactionController = require("../controllers/transactionController");
 const authController = require("./../controllers/authController");
 
 router.get("/vnpay_ipn", transactionController.executeTransaction);
-
+router.get("/vnpay_return", transactionController.return);
 router
   .route("/all")
   .get(
@@ -45,35 +45,6 @@ router.post(
 // router.get("/refund", function (req, res, next) {
 //   let desc = "Hoan tien GD thanh toan";
 //   res.render("refund", { title: "Hoàn tiền giao dịch thanh toán" });
-// });
-
-// router.get("/vnpay_return", function (req, res, next) {
-//   let vnp_Params = req.query;
-
-//   let secureHash = vnp_Params["vnp_SecureHash"];
-
-//   delete vnp_Params["vnp_SecureHash"];
-//   delete vnp_Params["vnp_SecureHashType"];
-
-//   vnp_Params = sortObject(vnp_Params);
-
-//   let config = require("config");
-//   let tmnCode = config.get("vnp_TmnCode");
-//   let secretKey = config.get("vnp_HashSecret");
-
-//   let querystring = require("qs");
-//   let signData = querystring.stringify(vnp_Params, { encode: false });
-//   let crypto = require("crypto");
-//   let hmac = crypto.createHmac("sha512", secretKey);
-//   let signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-
-//   if (secureHash === signed) {
-//     //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
-
-//     res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
-//   } else {
-//     res.render("success", { code: "97" });
-//   }
 // });
 
 // router.post("/querydr", function (req, res, next) {
