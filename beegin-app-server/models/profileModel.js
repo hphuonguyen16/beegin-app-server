@@ -14,14 +14,14 @@ const Profileschema = new mongoose.Schema(
       type: String,
       required: [true, "Please tell us your slug!"],
       unique: true,
-      validate: {
-        validator: function (value) {
-          // Check if the slug starts with '@' and has no spaces
-          return /^@[^ ]*$/.test(value);
-        },
-        message:
-          "Invalid slug format. It should start with '@' and have no spaces.",
-      },
+      // validate: {
+      //   validator: function (value) {
+      //     // Check if the slug starts with '@' and has no spaces
+      //     return /^@[^ ]*$/.test(value);
+      //   },
+      //   message:
+      //     "Invalid slug format. It should start with '@' and have no spaces.",
+      // },
     },
     gender: {
       type: Boolean,
