@@ -79,10 +79,10 @@ exports.getFeedByUser = (user, query) => {
       if (probability < 0.4) {
         await this.addAdsToUserFeed(user);
       }
-
+      const total = await Feed.countDocuments({ user: user });
       resolve({
         status: "success",
-        results: feeds.length,
+        total: total,
         data: feeds,
       });
     } catch (err) {
