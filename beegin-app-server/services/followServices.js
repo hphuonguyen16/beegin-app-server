@@ -4,6 +4,8 @@ const ProfileModel = require("./../models/profileModel");
 const NotificationModel = require("./../models/notificationModel");
 const UserPreferenceModel = require("./../models/userPreferenceModel");
 const AppError = require("./../utils/appError");
+const feedServices = require("./feedServices");
+
 const { isEqual } = require("lodash");
 
 exports.followingOtherUser = (followingId, id) => {
@@ -29,6 +31,8 @@ exports.followingOtherUser = (followingId, id) => {
             user: followingId,
             content: `${profile.firstname} ${profile.lastname} has followed you`,
           });
+
+          await feedServices.addFollowingUserPostToFeed(id, followingId);
           resolve({
             status: "Success",
           });
@@ -56,13 +60,13 @@ exports.getAllFollowings = (id) => {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
       } else {
-        const data = await FollowModel.find({ follower: id }).
-          populate({
+        const data = await FollowModel.find({ follower: id })
+          .populate({
             path: "following",
             model: "User",
-            select:"profile"
+            select: "profile",
           })
-          .select('following');
+          .select("following");
         resolve({
           status: "Success",
           data,
@@ -79,15 +83,16 @@ exports.getAllFollowers = (id) => {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
       } else {
-        let data = await FollowModel.find({ following: id }).populate({
+        let data = await FollowModel.find({ following: id })
+          .populate({
             path: "follower",
             model: "User",
-            select:"profile"
-        })
-          .select('follower');
+            select: "profile",
+          })
+          .select("follower");
         resolve({
           status: "Success",
-          data
+          data,
         });
       }
     } catch (error) {
@@ -109,6 +114,7 @@ exports.unfollow = (id, followingId) => {
           });
         } else {
           await FollowModel.deleteOne({ follower: id, following: followingId });
+          await feedServices.removeUnfollowedUserPostFromFeed(id, followingId);
           resolve({
             status: "Success",
           });
@@ -152,7 +158,6 @@ exports.isFollowing = (idFollower, followingId) => {
         reject(new AppError(`Missing parameter`, 400));
       } else {
         const check = await isFollowing(idFollower, followingId);
-        console.log(check);
         resolve({
           status: "Success",
           data: check,
@@ -175,17 +180,15 @@ const getGeneralFollowingCount = async (userId, otherId) => {
   return commonFollowings;
 };
 const suggestSimilarInterests = async (userId, otherId) => {
-  const preferenceListA = await UserPreferenceModel.distinct(
-    "category",
-    { user: userId }
-  );
+  const preferenceListA = await UserPreferenceModel.distinct("category", {
+    user: userId,
+  });
   if (preferenceListA.length === 0) {
     return false;
   }
-  const preferenceListB = await UserPreferenceModel.distinct(
-    "category",
-    { user: otherId }
-  );
+  const preferenceListB = await UserPreferenceModel.distinct("category", {
+    user: otherId,
+  });
 
   const equal = isEqual(preferenceListA.sort(), preferenceListB.sort());
   return equal;
@@ -204,7 +207,10 @@ exports.suggestFollow = async (userId) => {
       if (user.profile) {
         const check = await isFollowing(userId, user._id);
         if (!check && userId !== user._id.toString()) {
-          const checkPreference = await suggestSimilarInterests(userId, user._id);
+          const checkPreference = await suggestSimilarInterests(
+            userId,
+            user._id
+          );
           if (checkPreference) {
             return { user };
           } else {

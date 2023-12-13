@@ -2,6 +2,7 @@ const HashtagPost = require("./../models/hashtagPostModel");
 const TrendingHashtag = require("./../models/trendingHashtagModel");
 const Post = require("./../models/postModel");
 const TrendingPost = require("./../models/trendingPostModel");
+const AppError = require("./../utils/appError");
 
 exports.determineTrendingHashtags = (period = 30) => {
   return new Promise(async (resolve, reject) => {
@@ -238,7 +239,10 @@ exports.determineTrendingPosts = (count = 5, period = 30) => {
 exports.getTrendingPostsByCategories = (categories) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const categoryArray = categories.split(",");
+      if (!categories) {
+        reject(new AppError(`Please fill categories`, 400));
+      }
+      const categoryArray = categories.split(",") ?? [];
       const results = await TrendingPost.find({
         category: { $in: categoryArray },
       })
