@@ -6,6 +6,8 @@ const HashtagPost = require("./../models/hashtagPostModel");
 const AppError = require("./../utils/appError");
 const APIFeatures = require("./../utils/apiFeatures");
 const Hashtag = require("./../models/hashtagModel");
+const Feed = require("./../models/feedModel");
+const Follow = require("./../models/followModel");
 
 const checkDeletingPermission = async (postId, reject, userId) => {
   // admins always have permission to delete post
@@ -47,21 +49,40 @@ exports.createPost = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
       // set the root parent for sharing post
-      if (data.parent) {
-        const parentPost = await Post.findById(data.parent);
-        data.parent = parentPost.id;
+      let { content, images, imageVideo, categories, user, parent } = data;
+      if (parent) {
+        const parentPost = await Post.findById(parent);
+        if (parentPost.parent) {
+          parent = parentPost.parent;
+        }
       }
       const post = await Post.create({
-        content: data.content,
-        images: data.images,
-        imageVideo: data.imageVideo,
-        categories: data.categories,
-        user: data.user,
-        parent: data.parent,
+        content: content,
+        images: images,
+        imageVideo: imageVideo,
+        categories: categories,
+        user: user,
+        parent: parent,
       });
 
       if (post) {
         const result = await Post.findById(post.id);
+        const followers = await Follow.find({ following: user }).select(
+          "follower"
+        );
+        console.log(followers);
+        if (followers.length > 0) {
+          let feedEntries = followers.map((follower) => ({
+            user: follower.follower,
+            post: post.id,
+          }));
+          feedEntries.push({
+            user: user,
+            post: post.id,
+          });
+          const feeds = await Feed.create(feedEntries);
+          // console.log(feeds);
+        }
         resolve({
           status: "success",
           data: result,
@@ -346,5 +367,40 @@ exports.createBusinessPost = (data) => {
     } catch (err) {
       reject(err);
     }
+  });
+};
+
+exports.getPostsByUser = (userId, query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!userId) {
+        reject(new AppError(`Please fill all required fields`, 400));
+      }
+
+      const features = new APIFeatures(Post.find({ user: userId }), query)
+        .sort()
+        .paginate();
+      const posts = await features.query;
+      resolve(posts);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+exports.getLatestPostsByUser = (
+  userId,
+  page = 1,
+  limit = 5,
+  sort = "-createdAt"
+) => {
+  return new Promise(async (resolve, reject) => {
+    let query = {
+      limit: limit,
+      page: page,
+      sort: sort,
+    };
+    const posts = await this.getPostsByUser(userId, query);
+    resolve(posts);
   });
 };

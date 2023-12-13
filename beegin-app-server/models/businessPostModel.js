@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const PostModel = require("./postModel");
 const UnitPrice = require("./unitPriceModel");
 
-const BusinessPostschema = new mongoose.Schema(
+const BusinessPostSchema = new mongoose.Schema(
   {
     status: {
       type: String,
@@ -49,7 +49,7 @@ const BusinessPostschema = new mongoose.Schema(
   }
 );
 
-BusinessPostschema.pre("save", async function (next) {
+BusinessPostSchema.pre("save", async function (next) {
   if (this.activeDate && this.expireDate) {
     const start = new Date(this.activeDate);
     const end = new Date(this.expireDate);
@@ -69,7 +69,7 @@ BusinessPostschema.pre("save", async function (next) {
 });
 const BusinessPostModel = PostModel.discriminator(
   "BusinessPost",
-  BusinessPostschema
+  BusinessPostSchema
 );
 
 module.exports = BusinessPostModel;
