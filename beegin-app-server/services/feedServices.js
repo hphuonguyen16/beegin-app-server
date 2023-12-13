@@ -21,10 +21,17 @@ exports.getFeedByUser = (user, query) => {
       console.log(numOfFollow);
       if (numOfFollow) {
         console.log(numOfFollow);
-        if (numOfFollow.data.NumberOfFollowing === 0) {
-          this.addSuggestedPostToUserFeed(user, 5);
-        } else {
-          this.addSuggestedPostToUserFeed(user, 1);
+        const feedCount = await Feed.countDocuments({
+          user: user,
+          seen: false,
+        });
+        console.log(feedCount);
+        if (feedCount < 5) {
+          if (numOfFollow.data.NumberOfFollowing === 0) {
+            this.addSuggestedPostToUserFeed(user, 5);
+          } else {
+            this.addSuggestedPostToUserFeed(user, 1);
+          }
         }
       }
       const features = new APIFeatures(
