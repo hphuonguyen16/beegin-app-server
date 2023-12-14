@@ -42,13 +42,13 @@ exports.getFeedByUser = (user, query) => {
           .populate({
             path: "post",
             select:
-              "content images imageVideo categories numLikes numComments numShares createdAt user isActived parent",
+              "content images imageVideo categories numLikes numComments numShares createdAt user isActived parent id",
             match: { isActived: true },
             // options: { applyHooks: true },
             populate: {
               path: "parent",
               select:
-                "content images imageVideo categories numLikes numComments numShares createdAt isActived user",
+                "content images imageVideo categories numLikes numComments numShares createdAt isActived user id",
               match: { isActived: true },
               // options: { applyHooks: true },
             },
@@ -60,14 +60,13 @@ exports.getFeedByUser = (user, query) => {
         .paginate();
 
       const feeds = await features.query.lean();
-      // console.log(feeds);
 
       const isLikedPromises = feeds.map(async (feed) => {
         const isLiked = await postServices.isPostLikedByUser(
-          feed.post.id,
+          feed.post._id.toString(),
           user
         );
-        feed.isLiked = isLiked.data;
+        feed.post.isLiked = isLiked.data;
         return feed;
       });
 
