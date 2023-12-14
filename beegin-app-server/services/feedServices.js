@@ -71,7 +71,6 @@ exports.getFeedByUser = (user, query) => {
       });
 
       const data = await Promise.all(isLikedPromises);
-      console.log(data);
       // console.log(data);
       // probability for adding post to user feed
       const probability = Math.random();
