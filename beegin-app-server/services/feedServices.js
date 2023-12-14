@@ -6,6 +6,7 @@ const Feed = require("./../models/feedModel");
 const BusinessPost = require("./../models/businessPostModel");
 const User = require("./../models/userModel");
 const Post = require("./../models/postModel");
+const Follow = require("./../models/followModel");
 const postServices = require("./postServices");
 const trendingServices = require("./trendingServices");
 const followServices = require("./followServices");
@@ -264,6 +265,42 @@ exports.removeUnfollowedUserPostFromFeed = (followerId, followingId) => {
 
       // return affected documents count
       resolve(result);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+exports.addNewPostToFollowingUserFeed = (postId, userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!postId || !userId) {
+        reject(new AppError(`Please fill all required fields`, 400));
+      }
+
+      const followers = await Follow.find({ following: userId }).select(
+        "follower"
+      );
+
+      console.log(followers);
+      if (followers.length > 0) {
+        let feedEntries = followers.map((follower) => ({
+          user: follower.follower,
+          post: postId,
+        }));
+        feedEntries.push({
+          user: userId,
+          post: postId,
+        });
+        console.log(feedEntries);
+        const feeds = await Feed.create(feedEntries);
+        // const feeds = await Feed.create(feedEntries);
+        // console.log(feeds);
+        resolve({
+          status: "success",
+          data: feeds,
+        });
+      }
     } catch (err) {
       reject(err);
     }
