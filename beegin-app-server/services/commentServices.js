@@ -86,7 +86,13 @@ exports.getCommentsOfPost = (data, query) => {
         });
 
         const commentLikeEntries = comments.map(async (comment) => {
-          const isLiked = await this.isCommentLikedByUser(comment.id, user);
+          console.log(comment.id);
+          console.log(user);
+          const isLiked = await this.isCommentLikedByUser(
+            comment._id.toString(),
+            user
+          );
+          console.log(isLiked);
           comment.isLiked = isLiked.data;
           return comment;
         });
