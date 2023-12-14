@@ -6,9 +6,10 @@ const HashtagPost = require("./../models/hashtagPostModel");
 const AppError = require("./../utils/appError");
 const APIFeatures = require("./../utils/apiFeatures");
 const Hashtag = require("./../models/hashtagModel");
-const Feed = require("./../models/feedModel");
 const Follow = require("./../models/followModel");
+const Feed = require("./../models/feedModel");
 
+const feedServices = require("./../services/feedServices");
 const checkDeletingPermission = async (postId, reject, userId) => {
   // admins always have permission to delete post
   const user = await User.findById(userId);
@@ -67,22 +68,10 @@ exports.createPost = (data) => {
 
       if (post) {
         const result = await Post.findById(post.id);
-        const followers = await Follow.find({ following: user }).select(
-          "follower"
+        const _ = await feedServices.addNewPostToFollowingUserFeed(
+          post.id,
+          user
         );
-        console.log(followers);
-        if (followers.length > 0) {
-          let feedEntries = followers.map((follower) => ({
-            user: follower.follower,
-            post: post.id,
-          }));
-          feedEntries.push({
-            user: user,
-            post: post.id,
-          });
-          const feeds = await Feed.create(feedEntries);
-          // console.log(feeds);
-        }
         resolve({
           status: "success",
           data: result,
@@ -97,8 +86,9 @@ exports.createPost = (data) => {
 exports.updatePost = (postId, userId, data) => {
   return new Promise(async (resolve, reject) => {
     try {
+      let post;
       if (await checkPost(postId, reject, userId)) {
-        const post = await Post.findByIdAndUpdate(postId, data, {
+        post = await Post.findByIdAndUpdate(postId, data, {
           new: true,
           runValidators: true,
         });
