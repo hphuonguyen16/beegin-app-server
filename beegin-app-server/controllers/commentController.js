@@ -26,6 +26,7 @@ exports.createComment = catchAsync(async (req, res, next) => {
 });
 
 exports.getCommentsOfPost = catchAsync(async (req, res, next) => {
+  if (!req.body.user) req.body.user = req.user.id;
   const data = await commentServices.getCommentsOfPost(req.body, req.query);
   res.status(200).json(data);
 });

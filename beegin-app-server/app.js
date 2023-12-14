@@ -39,7 +39,11 @@ app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
 app.use(
   cors({
     // origin: ["http://localhost:3000", "https://beegin-app.vercel.app"], // Replace with the origin of your client application
-    origin: ["http://localhost:3000", "https://beegin-app.vercel.app"],
+    origin: [
+      "http://localhost:3000",
+      "https://beegin-app.vercel.app",
+      "https://beegin.vercel.app",
+    ],
     credentials: true, // Allow credentials (cookies) to be sent
   })
 );
