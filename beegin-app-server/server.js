@@ -40,7 +40,11 @@ const server = app.listen(port, () => {
 
 const io = socket(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://beegin-app.vercel.app"],
+    origin: [
+      "http://localhost:3000",
+      "https://beegin-app.vercel.app",
+      "https://beegin.vercel.app",
+    ],
     credentials: true,
   },
 });

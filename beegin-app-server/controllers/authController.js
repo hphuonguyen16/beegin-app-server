@@ -49,7 +49,7 @@ const createRefreshToken = async (user, res) => {
     sameSite: "none",
   };
   if (process.env.NODE_ENV === "production")
-      cookieOptionsRefresh.sameSite = "none";
+    cookieOptionsRefresh.sameSite = "none";
   if (process.env.NODE_ENV === "production") cookieOptionsRefresh.secure = true;
   res.cookie("refresh", refreshToken, cookieOptionsRefresh);
 };
