@@ -1,10 +1,10 @@
 const catchAsync = require("./../utils/catchAsync");
-const BusinessServices = require("./../services/businessServices");
+const businessServices = require("./../services/businessServices");
 
 exports.approveBusinessRequest = catchAsync(async (req, res) => {
   console.log(req.body);
   const { id } = req.body;
-  const data = await BusinessServices.handleBusinessRequest(id, "approved");
+  const data = await businessServices.handleBusinessRequest(id, "approved");
 
   res.status(200).json(data);
 });
@@ -12,11 +12,21 @@ exports.approveBusinessRequest = catchAsync(async (req, res) => {
 exports.rejectBusinessRequest = catchAsync(async (req, res) => {
   console.log(req.body);
   const { id } = req.body;
-  const data = await BusinessServices.handleBusinessRequest(id, "rejected");
+  const data = await businessServices.handleBusinessRequest(id, "rejected");
 
   res.status(200).json(data);
 });
 
+exports.getBusinessRequests = catchAsync(async (req, res) => {
+  console.log(req.body);
+
+  const data = await businessServices.getBusinessRequests(
+    req.query.status,
+    req.query
+  );
+
+  res.status(200).json(data);
+});
 // exports.signup = catchAsync(async (req, res) => {
 //   const data = await BusinessServices.businessSignUp(data);
 
