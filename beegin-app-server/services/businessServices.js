@@ -4,6 +4,7 @@ const BusinessRequest = require("./../models/businessRequestModel");
 
 const AppError = require("./../utils/appError");
 const crypto = require("crypto");
+const APIFeatures = require("./../utils/apiFeatures");
 // const sendEmail = require("./../utils/sendEmail");
 const {
   sendEmail,
@@ -64,6 +65,30 @@ exports.businessSignUp = (data) => {
   });
 };
 
+exports.getBusinessRequests = (status, query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let filter = {};
+      if (status) {
+        filter.status = status;
+      }
+      console.log(filter);
+      const features = new APIFeatures(BusinessRequest.find(filter), query);
+
+      const requests = await features.query;
+
+      const count = await BusinessRequest.countDocuments(filter);
+
+      resolve({
+        status: "success",
+        total: count,
+        data: requests,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
 exports.handleBusinessRequest = (id, status) => {
   return new Promise(async (resolve, reject) => {
     try {
