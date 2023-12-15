@@ -4,7 +4,12 @@ const BusinessRequest = require("./../models/businessRequestModel");
 
 const AppError = require("./../utils/appError");
 const crypto = require("crypto");
-const sendEmail = require("./../utils/sendEmail");
+// const sendEmail = require("./../utils/sendEmail");
+const {
+  sendEmail,
+  sendBusinessRejectionEmail,
+  sendBussinessAprrovalEmail,
+} = require("./../utils/sendEmail");
 exports.businessSignUp = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -17,9 +22,9 @@ exports.businessSignUp = (data) => {
         !data.slug ||
         data.gender === undefined
       ) {
-        reject(new AppError("Please fill in all required fields", 400));
+        return reject(new AppError("Please fill in all required fields", 400));
       } else if (data.password !== data.passwordConfirm) {
-        reject(new AppError("Password confirmation is incorrect", 400));
+        return reject(new AppError("Password confirmation is incorrect", 400));
       } else {
         const verifyToken = crypto.randomBytes(32).toString("hex");
         const user = await UserModel.create({
@@ -64,15 +69,17 @@ exports.handleBusinessRequest = (id, status) => {
     try {
       const user = await UserModel.findById(id);
       if (!user) {
-        reject(new AppError(`Business account not found`, 404));
+        return reject(new AppError(`Business account not found`, 404));
       }
 
       if (user.role !== "business") {
-        reject(new AppError(`Account is not a business one`, 400));
+        return reject(new AppError(`Account is not a business one`, 400));
       }
 
       if (!user.verify) {
-        reject(new AppError(`Business account has not verified yet`, 400));
+        return reject(
+          new AppError(`Business account has not verified yet`, 400)
+        );
       }
 
       const request = await BusinessRequest.findOneAndUpdate(
@@ -81,10 +88,22 @@ exports.handleBusinessRequest = (id, status) => {
         { new: true }
       );
 
-      if ((status = "approved")) {
-        const _ = await UserModel.findByIdAndUpdate(id, {
+      let result;
+      if (status === "approved") {
+        result = await UserModel.findByIdAndUpdate(id, {
           approved: true,
         });
+
+        await sendBussinessAprrovalEmail();
+      } else if (status === "rejected") {
+        result = await UserModel.findByIdAndUpdate(id, {
+          approved: false,
+        });
+        console.log(typeof sendBusinessRejectionEmail);
+        await sendBusinessRejectionEmail(
+          user.email,
+          "Business Account Request"
+        );
       }
       resolve(request);
     } catch (err) {
