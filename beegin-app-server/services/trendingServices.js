@@ -248,6 +248,8 @@ exports.getTrendingPostsByCategories = (categories) => {
       })
         .populate("posts")
         .populate("category");
+
+      console.log(results);
       resolve({
         status: "success",
         data: results,

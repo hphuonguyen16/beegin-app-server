@@ -73,7 +73,9 @@ exports.getBusinessRequests = (status, query) => {
         filter.status = status;
       }
       console.log(filter);
-      const features = new APIFeatures(BusinessRequest.find(filter), query);
+      const features = new APIFeatures(BusinessRequest.find(filter), query)
+        .sort()
+        .paginate();
 
       const requests = await features.query;
 
@@ -82,6 +84,7 @@ exports.getBusinessRequests = (status, query) => {
       resolve({
         status: "success",
         total: count,
+        results: requests.length,
         data: requests,
       });
     } catch (err) {
