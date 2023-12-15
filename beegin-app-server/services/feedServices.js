@@ -76,7 +76,7 @@ exports.getFeedByUser = (user, query) => {
       // probability for adding post to user feed
       const probability = Math.random();
       console.log(probability);
-      if (probability < 0.4) {
+      if (probability < 0.2) {
         await this.addAdsToUserFeed(user);
       }
       const total = await Feed.countDocuments({ user: user });
@@ -91,6 +91,31 @@ exports.getFeedByUser = (user, query) => {
   });
 };
 
+exports.setFeedSeen = (userId, feeds) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!userId || !feeds) {
+        return reject(new AppError(`Please fill all required fields`, 400));
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return reject(new AppError(`Please fill all required fields`, 400));
+      }
+      const affected = await Feed.updateMany(
+        { user: user._id, _id: { $in: feeds } },
+        { $set: { seen: true } }
+      );
+
+      resolve({
+        status: "success",
+        data: affected,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
 exports.addAdsToUserFeed = (user) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -185,7 +210,7 @@ exports.addFollowingUserPostToFeed = (followerId, followingId) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!followerId || !followingId) {
-        reject(new AppError(`Please fill all required fields`, 400));
+        return reject(new AppError(`Please fill all required fields`, 400));
       }
 
       const followerPromise = User.findById(followerId);
@@ -197,7 +222,7 @@ exports.addFollowingUserPostToFeed = (followerId, followingId) => {
       ]);
 
       if (!follower || !following) {
-        reject(new AppError(`User not found`, 404));
+        return reject(new AppError(`User not found`, 404));
       }
 
       // get latest posts by followed user

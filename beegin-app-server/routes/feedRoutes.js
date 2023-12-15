@@ -7,7 +7,10 @@ const router = express.Router();
 
 router.use(authController.protect);
 
-router.route("/").get(feedController.setQuery, feedController.getFeedByUser);
+router
+  .route("/")
+  .get(feedController.setQuery, feedController.getFeedByUser)
+  .post(feedController.setFeedSeen);
 router.route("/ads").get(feedController.getRandomAds);
 router.route("/follow").get(feedController.getFollowingUserFeed);
 router.route("/unfollow").get(feedController.getRemovedFeed);
