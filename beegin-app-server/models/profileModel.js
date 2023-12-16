@@ -43,6 +43,7 @@ const Profileschema = new mongoose.Schema(
   }
 );
 
+Profileschema.index({ user: 1 }, { unique: true });
 Profileschema.post("save", async function () {
   await this.populate("user");
 });
