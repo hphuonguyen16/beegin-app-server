@@ -3,6 +3,7 @@ const TrendingHashtag = require("./../models/trendingHashtagModel");
 const Post = require("./../models/postModel");
 const TrendingPost = require("./../models/trendingPostModel");
 const AppError = require("./../utils/appError");
+const postServices = require("./postServices");
 
 exports.determineTrendingHashtags = (period = 30) => {
   return new Promise(async (resolve, reject) => {
@@ -236,7 +237,7 @@ exports.determineTrendingPosts = (count = 5, period = 30) => {
   });
 };
 
-exports.getTrendingPostsByCategories = (categories) => {
+exports.getTrendingPostsByCategories = (categories, user) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!categories) {
@@ -247,12 +248,35 @@ exports.getTrendingPostsByCategories = (categories) => {
         category: { $in: categoryArray },
       })
         .populate("posts")
-        .populate("category");
+        .populate("category")
+        .lean();
 
-      console.log(results);
+      if (!user) {
+        resolve({
+          status: "success",
+          data: results,
+        });
+      }
+
+      // add isLiked for user
+      const promises = results.map(async (category) => {
+        const updatedPosts = await Promise.all(
+          category.posts.map(async (post) => {
+            const data = await postServices.isPostLikedByUser(
+              post._id.toString(),
+              user
+            );
+            const isLiked = data.data;
+            return { ...post, isLiked };
+          })
+        );
+        return { ...category, posts: updatedPosts };
+      });
+
+      const updatedData = await Promise.all(promises);
       resolve({
         status: "success",
-        data: results,
+        data: updatedData,
       });
     } catch (err) {
       reject(err);
