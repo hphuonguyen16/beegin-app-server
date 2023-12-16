@@ -120,7 +120,7 @@ exports.addAdsToUserFeed = (user) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!user) {
-        reject(new AppError(`Please fill all required fields`, 400));
+        return reject(new AppError(`Please fill all required fields`, 400));
       }
       const currentDate = new Date();
       const ads = await BusinessPost.aggregate([
@@ -135,14 +135,14 @@ exports.addAdsToUserFeed = (user) => {
           $sample: { size: 1 },
         },
       ]);
-      if (ads.length <= 0) {
-        resolve();
+      let feed;
+      if (ads.length > 0) {
+        feed = await Feed.create({
+          post: ads[0],
+          type: "advertisement",
+          user: user,
+        });
       }
-      const feed = await Feed.create({
-        post: ads[0],
-        type: "advertisement",
-        user: user,
-      });
       resolve({
         data: feed,
       });
