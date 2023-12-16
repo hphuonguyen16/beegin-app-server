@@ -15,17 +15,89 @@ exports.getNotificationsByUser = (userId, query, all = true) => {
       if (!all) {
         filter.read = false;
       }
-      const features = new APIFeatures(Notification.find(filter), query)
+      const features = new APIFeatures(Notification.find(filter).lean(), query)
         .sort()
         .paginate();
 
       const data = await features.query;
 
-      resolve(data);
+      const promises = data.map(async (notification) => {
+        const populate = await populateNotificationContent(notification);
+        return { ...notification, populate };
+      });
+
+      const populatedData = await Promise.all(promises);
+      resolve(populatedData);
     } catch (err) {
       reject(err);
     }
   });
+};
+
+exports.setNotificationRead = (notiId, userId, read = true) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!notiId || !userId) {
+        return reject(new AppError(`Please fill all required fields`, 400));
+      }
+      const notification = await Notification.findById(notiId);
+      if (!notification) {
+        return reject(new AppError(`Notification not found`, 404));
+      }
+
+      let result;
+      console.log(notification);
+      if (notification.recipient.toString() !== userId) {
+        return reject(
+          new AppError(`You do not have permission to perform this action`, 401)
+        );
+      }
+      notification.read = read;
+      result = await notification.save();
+      resolve(result);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+const populateNotificationContent = async (notification) => {
+  const { contentId, subContentId, type } = notification;
+  switch (type) {
+    case "follow": {
+      return await Profile.findOne({ user: contentId }).select("user _id");
+    }
+    case "like post": {
+      return await Post.findById(contentId).select("_id");
+    }
+    case "comment": {
+      return await Comment.findById(subContentId).populate({
+        path: "post",
+        select: "_id",
+      });
+    }
+    case "like comment": {
+      return await Comment.findById(contentId)
+        .select("_id post -user")
+        .populate({
+          path: "post",
+          select: "_id",
+        });
+    }
+    case "reply comment": {
+      return await Comment.findById(subContentId)
+        .populate({
+          path: "post",
+          select: "_id",
+        })
+        .populate({
+          path: "parent",
+          select: "_id -user",
+        });
+    }
+    default: {
+      return null;
+    }
+  }
 };
 exports.createNotifications = (
   recipient,
