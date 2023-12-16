@@ -85,14 +85,10 @@ const populateNotificationContent = async (notification) => {
     }
     case "reply comment": {
       return await Comment.findById(subContentId)
-        .populate({
-          path: "post",
-          select: "_id",
-        })
-        .populate({
-          path: "parent",
-          select: "_id -user",
-        });
+      .populate({
+        path: "parent",
+        select: "-id",
+      });
     }
     default: {
       return null;
