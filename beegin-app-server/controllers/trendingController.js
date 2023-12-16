@@ -26,7 +26,8 @@ exports.getTrendingPosts = catchAsync(async (req, res, next) => {
   if (!req.query.category)
     return next(new AppError(`Empty category query`, 400));
   const data = await trendingServices.getTrendingPostsByCategories(
-    req.query.category
+    req.query.category,
+    req.user?.id
   );
   res.status(200).json(data);
 });
