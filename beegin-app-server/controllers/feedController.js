@@ -13,6 +13,11 @@ exports.getFeedByUser = catchAsync(async (req, res, next) => {
   res.status(200).json(data);
 });
 
+exports.setFeedSeen = catchAsync(async (req, res, next) => {
+  const data = await feedServices.setFeedSeen(req.user.id, req.body.feeds);
+  res.status(200).json(data);
+});
+
 exports.getRandomAds = catchAsync(async (req, res, next) => {
   const data = await feedServices.addAdsToUserFeed(req.user.id);
   res.status(200).json(data);

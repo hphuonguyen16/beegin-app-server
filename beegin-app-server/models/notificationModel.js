@@ -1,25 +1,48 @@
 const mongoose = require("mongoose");
 
-const Notificationschema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
-    required: [true, 'A notification must belong to a user'],
+const Notificationschema = new mongoose.Schema(
+  {
+    recipient: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Reference to the User model
+      required: [true, "A notification must belong to a user"],
+    },
+    type: {
+      type: String,
+      enum: [
+        "follow",
+        "comment",
+        "like post",
+        "like comment",
+        "reply comment",
+        "message",
+      ],
+      required: [true, "Notification type must be declared"],
+    },
+    actors: [
+      {
+        type: String,
+      },
+    ],
+    image: String,
+    contentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      require: [true, "A notification must contain content id"],
+    },
+    subContentId: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
+    read: {
+      type: Boolean,
+      default: false,
+    },
   },
-  content: {
-    type: String,
-    required: [true, 'Please provide a notification content'],
-  },
-  read: {
-    type: Boolean,
-    default: false,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
-const NotificationModel = mongoose.model('Notification', Notificationschema);
+Notificationschema.index({ recipient: 1 });
+const NotificationModel = mongoose.model("Notification", Notificationschema);
 
 module.exports = NotificationModel;

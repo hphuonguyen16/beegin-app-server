@@ -69,22 +69,32 @@ exports.createComment = (data) => {
 exports.getCommentsOfPost = (data, query) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { post, parent } = data;
+      const { post, parent, user } = data;
       if (await checkPost(post, reject)) {
         const features = new APIFeatures(
-          Comment.find({ post: data.post, parent: parent }),
+          Comment.find({ post: data.post, parent: parent }).lean(),
           query
         )
           .filter()
           .sort()
           .limitFields()
           .paginate();
-        const comments = await features.query;
+        let comments = await features.query;
         const total = await Comment.countDocuments({
           post: data.post,
           parent: parent,
         });
 
+        const commentLikeEntries = comments.map(async (comment) => {
+          const isLiked = await this.isCommentLikedByUser(
+            comment._id.toString(),
+            user
+          );
+          console.log(isLiked);
+          comment.isLiked = isLiked.data;
+          return comment;
+        });
+        const _ = await Promise.all(commentLikeEntries);
         resolve({
           status: "success",
           results: comments.length,

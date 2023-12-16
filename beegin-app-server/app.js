@@ -21,12 +21,12 @@ const categoryRouter = require("./routes/categoryRoutes");
 const trendingRouter = require("./routes/trendingRoutes");
 const messageRouter = require("./routes/messageRoutes");
 const searchRouter = require("./routes/searchRoutes");
-const notificationRouter = require("./routes/notificationRouters");
 const reportRouter = require("./routes/reportRouters");
 const advertisementRouter = require("./routes/advertisementPlanRoutes");
 const transactionRouter = require("./routes/transactionRoutes");
 const priceRouter = require("./routes/unitPriceRoutes");
 const feedRouter = require("./routes/feedRoutes");
+const notiRouter = require("./routes/notificationRoutes");
 
 const cors = require("cors");
 
@@ -39,7 +39,11 @@ app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
 app.use(
   cors({
     // origin: ["http://localhost:3000", "https://beegin-app.vercel.app"], // Replace with the origin of your client application
-    origin: ["http://localhost:3000", "https://beegin-app.vercel.app"],
+    origin: [
+      "http://localhost:3000",
+      "https://beegin-app.vercel.app",
+      "https://beegin.vercel.app",
+    ],
     credentials: true, // Allow credentials (cookies) to be sent
   })
 );
@@ -122,12 +126,12 @@ app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/trending/", trendingRouter);
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/search", searchRouter);
-app.use("/api/v1/notification", notificationRouter);
 app.use("/api/v1/reports", reportRouter);
 app.use("/api/v1/advertisements", advertisementRouter);
 app.use("/api/v1/transactions", transactionRouter);
 app.use("/api/v1/prices", priceRouter);
 app.use("/api/v1/feed", feedRouter);
+app.use("/api/v1/notifications", notiRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

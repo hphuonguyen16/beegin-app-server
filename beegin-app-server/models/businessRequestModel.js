@@ -16,7 +16,7 @@ const BusinessRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "verified", "approved", "canceled"],
+    enum: ["pending", "verified", "approved", "canceled", "rejected"],
     default: "pending",
   },
 });

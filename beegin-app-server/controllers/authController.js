@@ -5,7 +5,7 @@ const User = require("./../models/userModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const authService = require("./../services/authServices");
-
+const businessServices = require("./../services/businessServices");
 const signToken = (id, secret, expiresTime) => {
   return jwt.sign({ id }, secret, {
     expiresIn: expiresTime,
@@ -49,7 +49,7 @@ const createRefreshToken = async (user, res) => {
     sameSite: "none",
   };
   if (process.env.NODE_ENV === "production")
-      cookieOptionsRefresh.sameSite = "none";
+    cookieOptionsRefresh.sameSite = "none";
   if (process.env.NODE_ENV === "production") cookieOptionsRefresh.secure = true;
   res.cookie("refresh", refreshToken, cookieOptionsRefresh);
 };
@@ -331,4 +331,16 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   // 4) Log user in, send JWT
   createSendToken(user, 200, res);
+});
+
+exports.businessSignup = catchAsync(async (req, res) => {
+  const profile = await authService.businessSignUp(req.body);
+  res.status(201).json({
+    status: "success",
+    data: {
+      profile,
+    },
+    message:
+      "An email has been sent to your email address. Please verify your email address to continue to next steps",
+  });
 });

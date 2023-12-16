@@ -1,7 +1,6 @@
 const User = require("../models/userModel");
 const FollowModel = require("./../models/followModel");
 const ProfileModel = require("./../models/profileModel");
-const NotificationModel = require("./../models/notificationModel");
 const UserPreferenceModel = require("./../models/userPreferenceModel");
 const AppError = require("./../utils/appError");
 const feedServices = require("./feedServices");
@@ -27,10 +26,6 @@ exports.followingOtherUser = (followingId, id) => {
           const profile = await ProfileModel.findOne({ user: id }).select(
             "firstname lastname username"
           );
-          await NotificationModel.create({
-            user: followingId,
-            content: `${profile.firstname} ${profile.lastname} has followed you`,
-          });
 
           await feedServices.addFollowingUserPostToFeed(id, followingId);
           resolve({
