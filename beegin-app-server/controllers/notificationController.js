@@ -10,8 +10,9 @@ exports.getNotificationsByUser = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    total: data.length,
-    data,
+    total: data.populatedData.length,
+    numUnread: data.numUnread,
+    data: data.populatedData,
   });
 });
 

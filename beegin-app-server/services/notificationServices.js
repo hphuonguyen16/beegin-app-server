@@ -27,7 +27,15 @@ exports.getNotificationsByUser = (userId, query, all = true) => {
       });
 
       const populatedData = await Promise.all(promises);
-      resolve(populatedData);
+
+      const numUnread = await Notification.countDocuments({
+        recipient: userId,
+        read: false,
+      });
+      resolve({
+        populatedData,
+        numUnread,
+      });
     } catch (err) {
       reject(err);
     }
@@ -178,9 +186,7 @@ exports.createLikePostNotification = (likerId, postId, type = "like post") => {
       }
 
       if (!likerId === post.user._id.toString()) {
-        return reject(
-          new AppError(`You can not create notification for yourself`, 400)
-        );
+        return resolve({});
       }
       let likePostNotification;
 
@@ -234,8 +240,11 @@ exports.createCommentPostNotification = (
         return reject(new AppError(`Post not found`, 404));
       }
 
-      let commentNotification;
+      if (comment.user._id.toString() === post.user._id.toString()) {
+        return resolve({});
+      }
 
+      let commentNotification;
       commentNotification = await Notification.findOne({
         recipient: post.user._id.toString(),
         contentId: postId,
@@ -288,8 +297,11 @@ exports.createLikeCommentNotification = (
         return reject(new AppError(`Comment not found`, 404));
       }
 
-      let likeCommentNotification;
+      if (likerId === comment.user._id.toString()) {
+        return resolve({});
+      }
 
+      let likeCommentNotification;
       likeCommentNotification = await Notification.findOne({
         recipient: comment.user._id.toString(),
         contentId: comment._id.toString(),
@@ -327,19 +339,21 @@ exports.createReplyCommentNotification = (
         return reject(new AppError(`Please fill all required fields`, 400));
       }
 
-      const comment = await Comment.findById(commentId).populate("parent");
+      const comment = await Comment.findById(commentId)
+        .populate("post")
+        .populate("parent");
       if (!comment) {
         return reject(new AppError(`Comment not found`, 404));
       }
-
+      if (comment.parent.user._id.toString() === comment.user._id.toString()) {
+        return resolve({});
+      }
       let replyCommentNotification;
-
       replyCommentNotification = await Notification.findOne({
         recipient: comment.parent.user._id.toString(),
         contentId: comment.parent._id.toString(),
         type: type,
       });
-
       if (!replyCommentNotification) {
         replyCommentNotification = await this.createNotifications(
           comment.parent.user._id.toString(),
@@ -356,6 +370,16 @@ exports.createReplyCommentNotification = (
         await replyCommentNotification.save();
       }
 
+      console.log(comment.post.user);
+      if (
+        comment.post.user._id.toString() !== comment.parent.user._id.toString()
+      ) {
+        const temp = await this.createCommentPostNotification(
+          commentId,
+          comment.post._id.toString()
+        );
+        console.log(temp);
+      }
       resolve(replyCommentNotification);
     } catch (err) {
       reject(err);
