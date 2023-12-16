@@ -67,13 +67,10 @@ const populateNotificationContent = async (notification) => {
       return await Profile.findOne({ user: contentId }).select("user _id");
     }
     case "like post": {
-      return await Post.findById(contentId).select("_id");
+      return { post: contentId };
     }
     case "comment": {
-      return await Comment.findById(subContentId).populate({
-        path: "post",
-        select: "_id",
-      });
+      return await Comment.findById(subContentId);
     }
     case "like comment": {
       return await Comment.findById(contentId)
@@ -84,8 +81,7 @@ const populateNotificationContent = async (notification) => {
         });
     }
     case "reply comment": {
-      return await Comment.findById(subContentId)
-      .populate({
+      return await Comment.findById(subContentId).populate({
         path: "parent",
         select: "-id",
       });
