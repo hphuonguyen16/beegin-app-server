@@ -9,14 +9,14 @@ exports.followingOtherUser = catchAsync(async (req, res) => {
     );
 });
 exports.getAllFollowings = catchAsync(async(req, res) => {
-    const data = await followService.getAllFollowings(req.params.id);
+    const data = await followService.getAllFollowings(req.params.id,req.user.id);
         return res.status(200).json(
             data
         )
 
 });
 exports.getAllFollowers = catchAsync(async(req, res) => {
-    const data = await followService.getAllFollowers(req.params.id)
+    const data = await followService.getAllFollowers(req.params.id, req.user.id);
         return res.status(200).json(
             data
         )
@@ -36,14 +36,14 @@ exports.getNumberOfFollows = catchAsync(async(req, res) => {
 });
 
 exports.getMyFollowingList = catchAsync(async(req, res) => {
-    const data = await followService.getAllFollowings(req.user.id);
+    const data = await followService.getMyFollowingList(req.user.id);
         return res.status(200).json(
             data
         )
 
 });
 exports.getMyFollowerList = catchAsync(async (req, res) => {
-    const data = await followService.getAllFollowers(req.user.id)
+    const data = await followService.getMyFollowerList(req.user.id)
         return res.status(200).json(
             data
         )
