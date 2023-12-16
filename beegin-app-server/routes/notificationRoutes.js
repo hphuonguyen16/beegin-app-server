@@ -8,6 +8,7 @@ router.use(authController.protect);
 router
   .route("/")
   .get(notiController.getNotificationsByUser)
-  .post(notiController.createNotifications);
+  .post(notiController.createNotifications)
+  .patch(notiController.setNotificationRead);
 
 module.exports = router;

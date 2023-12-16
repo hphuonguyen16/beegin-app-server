@@ -10,6 +10,19 @@ exports.getNotificationsByUser = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
+    total: data.length,
+    data,
+  });
+});
+
+exports.setNotificationRead = catchAsync(async (req, res, next) => {
+  const data = await notiServices.setNotificationRead(
+    req.body.notiId,
+    req.user.id
+  );
+
+  res.status(200).json({
+    status: "success",
     data,
   });
 });
