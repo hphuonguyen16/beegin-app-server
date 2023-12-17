@@ -155,10 +155,40 @@ exports.getPostsByMe = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const posts = await Post.find({ user: userId }).sort({ createdAt: -1 });
+      const postsWithLikeStatus = await Promise.all(
+        posts.map(async (post) => {
+          const isLiked = (await LikePost.exists({ post: post._id, user: userId }))
+        ? true
+        : false;;
+          return { ...post.toObject(), isLiked };
+        })
+      );
       resolve({
         status: "success",
         results: posts.length,
-        data: posts,
+        data: postsWithLikeStatus,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+exports.getPostByUserId = (userId, myId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const posts = await Post.find({ user: userId }).sort({ createdAt: -1 });
+      const postsWithLikeStatus = await Promise.all(
+        posts.map(async (post) => {
+          const isLiked = (await LikePost.exists({ post: post._id, user: myId }))
+        ? true
+        : false;;
+          return { ...post.toObject(), isLiked };
+        })
+      );
+      resolve({
+        status: "success",
+        results: posts.length,
+        data: postsWithLikeStatus,
       });
     } catch (err) {
       reject(err);
