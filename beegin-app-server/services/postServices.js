@@ -6,8 +6,7 @@ const HashtagPost = require("./../models/hashtagPostModel");
 const AppError = require("./../utils/appError");
 const APIFeatures = require("./../utils/apiFeatures");
 const Hashtag = require("./../models/hashtagModel");
-const Follow = require("./../models/followModel");
-const Feed = require("./../models/feedModel");
+const LikePost = require("./../models/likePostModel");
 
 const feedServices = require("./feedServices");
 const notiServices = require("./notificationServices");
@@ -438,5 +437,24 @@ exports.getLatestPostsByUser = (
     };
     const posts = await this.getPostsByUser(userId, query);
     resolve(posts);
+  });
+};
+
+exports.getUsersLikingPost = (postId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!postId) {
+        return reject(new AppError(`Empty post Id`, 400));
+      }
+
+      const post = await Post.findById(postId);
+      if (!post) {
+        return reject(new AppError(`Post not found`, 404));
+      }
+
+      const features = new APIFeatures();
+    } catch (err) {
+      reject(err);
+    }
   });
 };
