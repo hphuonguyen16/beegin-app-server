@@ -4,6 +4,8 @@ const Comment = require("./../models/commentModel");
 const CommentLike = require("./../models/commentLikeModel");
 const APIFeatures = require("./../utils/apiFeatures");
 
+const notiServices = require("./notificationServices");
+
 const checkPost = async (postId, reject) => {
   const post = await Post.findById(postId);
   if (!post) {
@@ -53,6 +55,19 @@ exports.createComment = (data) => {
           post: post,
           parent: parent,
         });
+
+        let _;
+        if (parent) {
+          _ = await notiServices.createReplyCommentNotification(
+            comment._id.toString()
+          );
+        } else {
+          _ = await notiServices.createCommentPostNotification(
+            comment._id.toString(),
+            post
+          );
+        }
+        console.log(_);
         // populate user
         await comment.populate("user", "_id profile");
         resolve({
@@ -188,6 +203,12 @@ exports.likeComment = (commentId, userId) => {
         comment: commentId,
         user: userId,
       });
+
+      const _ = await notiServices.createLikeCommentNotification(
+        userId,
+        commentId
+      );
+      console.log(_);
       resolve({
         status: "success",
         data: commentLike,

@@ -4,6 +4,8 @@ const Profile = require("./../models/profileModel");
 const Post = require("./../models/postModel");
 const Comment = require("./../models/commentModel");
 const APIFeatures = require("./../utils/apiFeatures");
+const pusher = require("./pusherServices");
+
 exports.getNotificationsByUser = (userId, query, all = true) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -123,6 +125,8 @@ exports.createNotifications = (
         subContentId: subContentId,
       });
 
+      // const sentData = await populateNotificationContent(data);
+      // pusher.trigger(recipient, "send-notification", sentData);
       resolve(data);
     } catch (err) {
       resolve(err);
@@ -161,7 +165,6 @@ exports.createFollowNotification = (
         follower.avatar,
         type
       );
-      console.log(notification);
       resolve(notification);
     } catch (err) {
       resolve(err);
