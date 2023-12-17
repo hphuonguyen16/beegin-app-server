@@ -189,7 +189,7 @@ exports.createLikePostNotification = (likerId, postId, type = "like post") => {
         return resolve({ message: `Post not found` });
       }
 
-      if (!likerId === post.user._id.toString()) {
+      if (likerId === post.user._id.toString()) {
         return resolve({});
       }
       let likePostNotification;
