@@ -4,7 +4,6 @@ const Profile = require("./../models/profileModel");
 const Post = require("./../models/postModel");
 const Comment = require("./../models/commentModel");
 const APIFeatures = require("./../utils/apiFeatures");
-const pusher = require("./pusherServices");
 
 exports.getNotificationsByUser = (userId, query, all = true) => {
   return new Promise(async (resolve, reject) => {
@@ -123,8 +122,6 @@ exports.createNotifications = (
         subContentId: subContentId,
       });
 
-      // const sentData = await populateNotificationContent(data);
-      // pusher.trigger(recipient, "send-notification", sentData);
       resolve(data);
     } catch (err) {
       resolve(err);
@@ -214,6 +211,7 @@ exports.createLikePostNotification = (likerId, postId, type = "like post") => {
       } else {
         likePostNotification.actors.push(liker.slug);
         likePostNotification.image = liker.avatar;
+        likePostNotification.read = false;
         await likePostNotification.save();
       }
 
@@ -275,6 +273,7 @@ exports.createCommentPostNotification = (
         commentNotification.actors.push(comment.user.profile.slug);
         commentNotification.image = comment.user.profile.avatar;
         commentNotification.subContentId = commentId;
+        commentNotification.read = false;
         await commentNotification.save();
       }
 
@@ -334,6 +333,7 @@ exports.createLikeCommentNotification = (
       } else {
         likeCommentNotification.actors.push(liker.slug);
         likeCommentNotification.image = liker.avatar;
+        likeCommentNotification.read = false;
         await likeCommentNotification.save();
       }
 
@@ -385,6 +385,7 @@ exports.createReplyCommentNotification = (
         replyCommentNotification.actors.push(comment.user.profile.slug);
         replyCommentNotification.image = comment.user.profile.avatar;
         replyCommentNotification.subContentId = commentId;
+        replyCommentNotification.read = false;
         await replyCommentNotification.save();
       }
 
@@ -439,6 +440,7 @@ exports.createSharePostNotification = (postId, type = "share post") => {
       } else {
         sharePostNotification.actors.push(post.user.profile.slug);
         sharePostNotification.image = post.user.profile.avatar;
+        sharePostNotification.read = false;
         await sharePostNotification.save();
       }
       resolve(sharePostNotification);
