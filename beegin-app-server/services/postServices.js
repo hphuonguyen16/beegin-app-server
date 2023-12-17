@@ -69,6 +69,7 @@ exports.createPost = (data) => {
       });
 
       if (post) {
+        const result = await Post.findById(post._id);
         if (parent) {
           const _ = await notiServices.createSharePostNotification(
             post._id.toString()
@@ -81,7 +82,7 @@ exports.createPost = (data) => {
         );
         resolve({
           status: "success",
-          data: post,
+          data: result,
         });
       }
     } catch (err) {
