@@ -15,6 +15,7 @@ const Notificationschema = new mongoose.Schema(
         "like post",
         "like comment",
         "reply comment",
+        "share post",
         "message",
       ],
       required: [true, "Notification type must be declared"],

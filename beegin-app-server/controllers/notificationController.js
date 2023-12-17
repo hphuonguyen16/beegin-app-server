@@ -65,6 +65,10 @@ exports.createNotifications = catchAsync(async (req, res, next) => {
       );
       break;
     }
+    case "share post": {
+      data = await notiServices.createSharePostNotification(req.body.postId);
+      break;
+    }
     default: {
       res.status(400).json({
         status: "failed",
