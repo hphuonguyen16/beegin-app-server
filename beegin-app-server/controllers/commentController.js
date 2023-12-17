@@ -36,6 +36,11 @@ exports.getComment = catchAsync(async (req, res, next) => {
   res.status(200).json(data);
 });
 
+exports.getCommentById = catchAsync(async (req, res, next) => {
+  const data = await commentServices.getComment(req.params.id);
+  res.status(200).json(data);
+});
+
 exports.updateComment = catchAsync(async (req, res, next) => {
   //set userid to check if having permission to update comment
   if (!req.body.user) req.body.user = req.user.id;

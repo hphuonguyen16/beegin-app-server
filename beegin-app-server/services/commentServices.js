@@ -126,7 +126,7 @@ exports.getCommentsOfPost = (data, query) => {
 exports.getComment = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const comment = await Comment.findById(id);
+      const comment = await Comment.findById(id).populate("parent");
 
       resolve({
         status: "success",

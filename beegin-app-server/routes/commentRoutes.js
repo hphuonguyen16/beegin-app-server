@@ -21,6 +21,7 @@ router
     commentController.createComment
   );
 
+router.route("/id/:id").get(commentController.getCommentById);
 router
   .route("/:id")
   .get(
