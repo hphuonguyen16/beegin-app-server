@@ -79,21 +79,17 @@ const populateNotificationContent = async (notification) => {
       return { post: contentId };
     }
     case "comment": {
-      return await Comment.findById(subContentId);
+      return await Comment.findById(subContentId).select(
+        "_id content user post parent createdAt"
+      );
     }
     case "like comment": {
-      return await Comment.findById(contentId)
-        .select("_id post -user")
-        .populate({
-          path: "post",
-          select: "_id",
-        });
+      return await Comment.findById(contentId).select("_id post parent -user");
     }
     case "reply comment": {
-      return await Comment.findById(subContentId).populate({
-        path: "parent",
-        select: "-id",
-      });
+      return await Comment.findById(subContentId).select(
+        "_id content user post parent createdAd"
+      );
     }
     default: {
       return null;
