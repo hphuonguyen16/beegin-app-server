@@ -257,3 +257,44 @@ exports.isCommentLikedByUser = (commentId, userId) => {
     }
   });
 };
+
+exports.getUsersLikingComment = (commentId, query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!commentId) {
+        return reject(new AppError(`Empty comment id`, 400));
+      }
+
+      const comment = await Comment.findById(commentId);
+
+      if (!comment) {
+        return reject(new AppError(`Comment not found`, 404));
+      }
+
+      const features = new APIFeatures(
+        CommentLike.find({ comment: commentId })
+          .populate({
+            path: "user",
+            select: "_id email role profile",
+          })
+          .select("user"),
+        query
+      )
+        .sort()
+        .paginate();
+
+      const users = await features.query;
+
+      const data = users.map((user) => user.user);
+      const total = await CommentLike.count({ comment: commentId });
+
+      return resolve({
+        status: "success",
+        total: total,
+        data: data,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};

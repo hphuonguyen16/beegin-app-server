@@ -76,3 +76,12 @@ exports.isCommentLikeByUser = catchAsync(async (req, res, next) => {
   );
   res.status(200).json(data);
 });
+
+exports.getUsersLikingComment = catchAsync(async (req, res, next) => {
+  const data = await commentServices.getUsersLikingComment(
+    req.params.id,
+    req.query
+  );
+
+  res.status(200).json(data);
+});

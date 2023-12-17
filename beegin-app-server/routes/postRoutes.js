@@ -40,6 +40,8 @@ router
     authController.restrictTo("user", "business"),
     postController.unlikePost
   );
+
+router.route("/:id/users").get(postController.getUsersLikingPost);
 //combine route with comment
 //ex /api/v1/post/postId/comment/
 router.use("/:postId/comments", commentRouters);
