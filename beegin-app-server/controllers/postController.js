@@ -60,6 +60,6 @@ exports.getAllPostsByMe = catchAsync(async (req, res, next) => {
   res.status(200).json(data);
 });
 exports.getPostByUserId = catchAsync(async (req, res, next) => {
-  const data = await postServices.getPostsByMe(req.params.id);
+  const data = await postServices.getPostByUserId(req.params.id,req.user.id);
   res.status(200).json(data);
 });
