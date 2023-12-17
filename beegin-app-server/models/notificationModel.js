@@ -47,10 +47,11 @@ const NotificationSchema = new mongoose.Schema(
 NotificationSchema.index({ recipient: 1 });
 
 NotificationSchema.post("save", async function (doc, next) {
-  const data = await notiServices.populateNotificationContent(doc);
-  console.log(data);
+  const populate = await notiServices.populateNotificationContent(doc);
+  let sentData = { ...doc._doc };
+  sentData.populate = populate;
   const channel = doc.recipient.toString();
-  await pusher.trigger(channel, "notifications:new", data);
+  await pusher.trigger(channel, "notifications:new", sentData);
   next();
 });
 const NotificationModel = mongoose.model("Notification", NotificationSchema);
