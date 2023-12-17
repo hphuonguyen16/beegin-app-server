@@ -22,6 +22,7 @@ router
   );
 
 router.route("/id/:id").get(commentController.getCommentById);
+router.route("/users/:id").get(commentController.getUsersLikingComment);
 router
   .route("/:id")
   .get(

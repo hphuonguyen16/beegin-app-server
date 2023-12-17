@@ -452,15 +452,25 @@ exports.getUsersLikingPost = (postId, query) => {
       }
 
       const features = new APIFeatures(
-        LikePost.find({ post: postId }).populate("user").select("user"),
+        LikePost.find({ post: postId })
+          .populate({
+            path: "user",
+            select: "_id email role profile",
+          })
+          .select("user"),
         query
       )
         .sort()
         .paginate();
 
       const users = await features.query;
-
-      resolve(users);
+      const data = users.map((user) => user.user);
+      const total = await LikePost.countDocuments({ post: postId });
+      resolve({
+        status: "success",
+        total: total,
+        data: data,
+      });
     } catch (err) {
       reject(err);
     }

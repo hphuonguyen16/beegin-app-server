@@ -27,9 +27,9 @@ exports.getFeedByUser = (user, query) => {
         console.log(feedCount);
         if (feedCount < 5) {
           if (numOfFollow.data.NumberOfFollowing === 0) {
-            this.addSuggestedPostToUserFeed(user, 5);
+            await this.addSuggestedPostToUserFeed(user, 5);
           } else {
-            this.addSuggestedPostToUserFeed(user, 1);
+            await this.addSuggestedPostToUserFeed(user, 1);
           }
         }
       }
@@ -150,7 +150,7 @@ exports.addAdsToUserFeed = (user) => {
   });
 };
 
-exports.addSuggestedPostToUserFeed = (userId, count = 2) => {
+exports.addSuggestedPostToUserFeed = (userId, count = 1) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!userId) {
@@ -173,16 +173,21 @@ exports.addSuggestedPostToUserFeed = (userId, count = 2) => {
       ).data;
 
       let suggestedPosts = trendingPosts.reduce((prev, curr) => {
-        prev.push(curr.posts.slice(0, count));
+        let take = count;
+        if (count > curr.posts.length) {
+          take = curr.posts.length;
+        }
+        if (take > 0) {
+          prev.push(curr.posts.slice(0, count));
+        }
         return prev;
       }, []);
-
       suggestedPosts = suggestedPosts.flat(Infinity);
       // console.log(suggestedPosts.length, suggestedPosts);
       const currentDate = new Date();
       const feedEntries = suggestedPosts.map((post) => ({
         user: userId,
-        post: post.id,
+        post: post._id.toString(),
         type: "suggested",
         createdAt: new Date(
           currentDate.getTime() + getRandomInt(-5, 0) * 60000
