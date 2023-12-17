@@ -9,7 +9,9 @@ const Hashtag = require("./../models/hashtagModel");
 const Follow = require("./../models/followModel");
 const Feed = require("./../models/feedModel");
 
-const feedServices = require("./../services/feedServices");
+const feedServices = require("./feedServices");
+const notiServices = require("./notificationServices");
+
 const checkDeletingPermission = async (postId, reject, userId) => {
   // admins always have permission to delete post
   const user = await User.findById(userId);
@@ -67,14 +69,19 @@ exports.createPost = (data) => {
       });
 
       if (post) {
-        const result = await Post.findById(post.id);
+        if (parent) {
+          const _ = await notiServices.createSharePostNotification(
+            post._id.toString()
+          );
+          console.log(_);
+        }
         const _ = await feedServices.addNewPostToFollowingUserFeed(
           post.id,
           user
         );
         resolve({
           status: "success",
-          data: result,
+          data: post,
         });
       }
     } catch (err) {
@@ -157,9 +164,12 @@ exports.getPostsByMe = (userId) => {
       const posts = await Post.find({ user: userId }).sort({ createdAt: -1 });
       const postsWithLikeStatus = await Promise.all(
         posts.map(async (post) => {
-          const isLiked = (await LikePost.exists({ post: post._id, user: userId }))
-        ? true
-        : false;;
+          const isLiked = (await LikePost.exists({
+            post: post._id,
+            user: userId,
+          }))
+            ? true
+            : false;
           return { ...post.toObject(), isLiked };
         })
       );
@@ -179,9 +189,12 @@ exports.getPostByUserId = (userId, myId) => {
       const posts = await Post.find({ user: userId }).sort({ createdAt: -1 });
       const postsWithLikeStatus = await Promise.all(
         posts.map(async (post) => {
-          const isLiked = (await LikePost.exists({ post: post._id, user: myId }))
-        ? true
-        : false;;
+          const isLiked = (await LikePost.exists({
+            post: post._id,
+            user: myId,
+          }))
+            ? true
+            : false;
           return { ...post.toObject(), isLiked };
         })
       );
@@ -221,6 +234,8 @@ exports.likePost = (postId, userId) => {
           user: userId,
         });
 
+        const _ = await notiServices.createLikePostNotification(userId, postId);
+        console.log(_);
         resolve({
           status: "success",
           data: likePost,

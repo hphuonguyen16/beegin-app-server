@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
+const pusher = require("./../utils/pusherObject");
 
-const Notificationschema = new mongoose.Schema(
+const NotificationSchema = new mongoose.Schema(
   {
     recipient: {
       type: mongoose.Schema.Types.ObjectId,
@@ -43,7 +44,13 @@ const Notificationschema = new mongoose.Schema(
   }
 );
 
-Notificationschema.index({ recipient: 1 });
-const NotificationModel = mongoose.model("Notification", Notificationschema);
+NotificationSchema.index({ recipient: 1 });
+
+NotificationSchema.post("save", async function (doc, next) {
+  const channel = doc.recipient.toString();
+  await pusher.trigger(channel, "notifications:new", doc);
+  next();
+});
+const NotificationModel = mongoose.model("Notification", NotificationSchema);
 
 module.exports = NotificationModel;

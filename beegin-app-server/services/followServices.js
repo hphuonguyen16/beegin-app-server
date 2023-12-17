@@ -4,6 +4,7 @@ const ProfileModel = require("./../models/profileModel");
 const UserPreferenceModel = require("./../models/userPreferenceModel");
 const AppError = require("./../utils/appError");
 const feedServices = require("./feedServices");
+const notiServices = require("./notificationServices");
 
 const { isEqual } = require("lodash");
 
@@ -28,6 +29,12 @@ exports.followingOtherUser = (followingId, id) => {
           );
 
           await feedServices.addFollowingUserPostToFeed(id, followingId);
+
+          const _ = await notiServices.createFollowNotification(
+            id,
+            followingId
+          );
+          console.log(_);
           resolve({
             status: "Success",
           });
@@ -49,7 +56,7 @@ const isFollowing = async (idFollower, followingId) => {
     return false;
   }
 };
-exports.getAllFollowings = (id,myId) => {
+exports.getAllFollowings = (id, myId) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!id) {
