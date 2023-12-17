@@ -19,9 +19,7 @@ exports.getFeedByUser = (user, query) => {
       }
       const currentDate = Date.now();
       const numOfFollow = await followServices.getNumberOfFollows(user);
-      console.log(numOfFollow);
       if (numOfFollow) {
-        console.log(numOfFollow);
         const feedCount = await Feed.countDocuments({
           user: user,
           seen: false,
@@ -307,7 +305,6 @@ exports.addNewPostToFollowingUserFeed = (postId, userId) => {
         "follower"
       );
 
-      console.log(followers);
       if (followers.length > 0) {
         let feedEntries = followers.map((follower) => ({
           user: follower.follower,
