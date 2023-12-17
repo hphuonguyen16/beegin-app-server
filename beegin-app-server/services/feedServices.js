@@ -178,7 +178,7 @@ exports.addSuggestedPostToUserFeed = (userId, count = 1) => {
           take = curr.posts.length;
         }
         if (take > 0) {
-          prev.push(curr.posts.slice(0, count));
+          prev.push(curr.posts.slice(0, take));
         }
         return prev;
       }, []);
