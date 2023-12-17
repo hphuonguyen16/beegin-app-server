@@ -64,20 +64,25 @@ exports.getAllFollowings = (id, myId) => {
       } else {
         const following = await FollowModel.find({ follower: id })
           .populate({
-            path: "following",
-            model: "User",
-            select: "profile",
+            path: 'following',
+            model: 'User',
+            select: 'profile',
           })
-          .select("following");
+          .select('following');
         const data = await Promise.all(
           following.map(async (following) => {
-            const status = await isFollowing(myId, following.following._id);
-            return { ...following.toObject(), status };
+            if (following && following.following && following.following._id) {
+              const status = await isFollowing(myId, following.following._id);
+              return { ...following.toObject(), status };
+            } else {
+              return null;
+            }
           })
         );
+        const filteredData = data.filter((item) => item !== null);
         resolve({
-          status: "Success",
-          data: data,
+          status: 'Success',
+          data: filteredData,
         });
       }
     } catch (error) {
@@ -85,28 +90,34 @@ exports.getAllFollowings = (id, myId) => {
     }
   });
 };
+
 exports.getAllFollowers = (id, myId) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
       } else {
-        const followers = await FollowModel.find({ following: id })
+        const follower = await FollowModel.find({ following: id })
           .populate({
-            path: "follower",
-            model: "User",
-            select: "profile",
+            path: 'follower',
+            model: 'User',
+            select: 'profile',
           })
-          .select("follower");
+          .select('follower');
         const data = await Promise.all(
-          followers.map(async (follower) => {
-            const status = await isFollowing(myId, follower.follower._id);
-            return { ...follower.toObject(), status };
+          follower.map(async (follower) => {
+            if (follower && follower.follower && follower.follower._id) {
+              const status = await isFollowing(myId, follower.follower._id);
+              return { ...follower.toObject(), status };
+            } else {
+              return null;
+            }
           })
         );
+        const filteredData = data.filter((item) => item !== null);
         resolve({
-          status: "Success",
-          data: data,
+          status: 'Success',
+          data: filteredData,
         });
       }
     } catch (error) {
@@ -123,14 +134,16 @@ exports.getMyFollowingList = (id) => {
       } else {
         const data = await FollowModel.find({ follower: id })
           .populate({
-            path: "following",
-            model: "User",
-            select: "profile",
+            path: 'following',
+            model: 'User',
+            select: 'profile',
           })
-          .select("following");
+          .select('following');
+        const filteredData = data.filter((item) => item && item.following);
+
         resolve({
-          status: "Success",
-          data,
+          status: 'Success',
+          data: filteredData,
         });
       }
     } catch (error) {
@@ -138,28 +151,34 @@ exports.getMyFollowingList = (id) => {
     }
   });
 };
+
 exports.getMyFollowerList = async (id) => {
-  return new Promise(async (resolve, reject) => {
+ return new Promise(async (resolve, reject) => {
     try {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
       } else {
-        const followers = await FollowModel.find({ following: id })
+        const follower = await FollowModel.find({ following: id })
           .populate({
-            path: "follower",
-            model: "User",
-            select: "profile",
+            path: 'follower',
+            model: 'User',
+            select: 'profile',
           })
-          .select("follower");
+          .select('follower');
         const data = await Promise.all(
-          followers.map(async (follower) => {
-            const status = await isFollowing(id, follower.follower._id);
-            return { ...follower.toObject(), status };
+          follower.map(async (follower) => {
+            if (follower && follower.follower && follower.follower._id) {
+              const status = await isFollowing(id, follower.follower._id);
+              return { ...follower.toObject(), status };
+            } else {
+              return null;
+            }
           })
         );
+        const filteredData = data.filter((item) => item !== null);
         resolve({
-          status: "Success",
-          data: data,
+          status: 'Success',
+          data: filteredData,
         });
       }
     } catch (error) {
@@ -217,7 +236,7 @@ exports.getNumberOfFollows = (id) => {
       reject(error);
     }
   });
-};
+};   
 
 exports.isFollowing = (idFollower, followingId) => {
   return new Promise(async (resolve, reject) => {
