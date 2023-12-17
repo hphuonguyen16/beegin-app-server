@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const pusher = require("./../utils/pusherObject");
-
+const notiServices = require("./../services/notificationServices");
 const NotificationSchema = new mongoose.Schema(
   {
     recipient: {
@@ -47,8 +47,10 @@ const NotificationSchema = new mongoose.Schema(
 NotificationSchema.index({ recipient: 1 });
 
 NotificationSchema.post("save", async function (doc, next) {
+  const data = await notiServices.populateNotificationContent(doc);
+  console.log(data);
   const channel = doc.recipient.toString();
-  await pusher.trigger(channel, "notifications:new", doc);
+  await pusher.trigger(channel, "notifications:new", data);
   next();
 });
 const NotificationModel = mongoose.model("Notification", NotificationSchema);

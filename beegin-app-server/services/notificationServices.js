@@ -56,7 +56,6 @@ exports.setNotificationRead = (notiId, userId, read = true) => {
       }
 
       let result;
-      console.log(notification);
       if (notification.recipient.toString() !== userId) {
         return reject(
           new AppError(`You do not have permission to perform this action`, 401)
@@ -101,6 +100,9 @@ const populateNotificationContent = async (notification) => {
     }
   }
 };
+
+exports.populateNotificationContent = populateNotificationContent;
+
 exports.createNotifications = (
   recipient,
   actors,
@@ -390,7 +392,6 @@ exports.createReplyCommentNotification = (
         await replyCommentNotification.save();
       }
 
-      console.log(comment.post.user);
       if (
         comment.post.user._id.toString() !== comment.parent.user._id.toString()
       ) {
@@ -424,7 +425,6 @@ exports.createSharePostNotification = (postId, type = "share post") => {
       if (post.user._id.toString() === post.parent.user._id.toString()) {
         return resolve({ message: `` });
       }
-      console.log(post);
       let sharePostNotification;
 
       sharePostNotification = await Notification.findOne({
