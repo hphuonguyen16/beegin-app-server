@@ -110,7 +110,8 @@ exports.createNotifications = (
   return new Promise(async (resolve, reject) => {
     try {
       if (!recipient || !actors || !type || !contentId) {
-        return reject(new AppError(`Please fill all requied fields`, 400));
+        // return reject(new AppError(`Please fill all requied fields`, 400));
+        return resolve({ message: `Please fill all requied fields` });
       }
 
       const data = await Notification.create({
@@ -124,7 +125,7 @@ exports.createNotifications = (
 
       resolve(data);
     } catch (err) {
-      reject(err);
+      resolve(err);
     }
   });
 };
@@ -137,18 +138,20 @@ exports.createFollowNotification = (
   return new Promise(async (resolve, reject) => {
     try {
       if (!followerId || !followingId) {
-        return reject(new AppError(`Please fill all required fields`, 400));
+        return resolve({ message: `Please fill all requied fields` });
       }
 
       const follower = await Profile.findOne({ user: followerId });
 
       if (!follower) {
-        return reject(new AppError(`Follower's profile not found`, 400));
+        // return reject(new AppError(`Follower's profile not found`, 400));
+        return resolve({ message: `Follower's profile not found` });
       }
 
       const following = await Profile.findOne({ user: followingId });
       if (!following) {
-        return reject(new AppError(`following's profile not found`, 400));
+        // return reject(new AppError(`following's profile not found`, 400));
+        return resolve({ message: `Following's profile not found` });
       }
 
       const notification = await this.createNotifications(
@@ -161,7 +164,7 @@ exports.createFollowNotification = (
       console.log(notification);
       resolve(notification);
     } catch (err) {
-      reject(err);
+      resolve(err);
     }
   });
 };
@@ -170,19 +173,22 @@ exports.createLikePostNotification = (likerId, postId, type = "like post") => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!likerId || !postId) {
-        return reject(new AppError(`Please fill all required fields`, 400));
+        // return reject(new AppError(`Please fill all required fields`, 400));
+        return resolve({ message: `Please fill all required fields` });
       }
 
       const liker = await Profile.findOne({ user: likerId });
 
       if (!liker) {
-        return reject(new AppError(`Liker's profile not found`, 404));
+        // return reject(new AppError(`Liker's profile not found`, 404));
+        return resolve({ message: `Liker's profile not found` });
       }
 
       const post = await Post.findById(postId);
 
       if (!post) {
-        return reject(new AppError(`Post not found`, 404));
+        // return reject(new AppError(`Post not found`, 404));
+        return resolve({ message: `Post not found` });
       }
 
       if (!likerId === post.user._id.toString()) {
@@ -212,7 +218,8 @@ exports.createLikePostNotification = (likerId, postId, type = "like post") => {
 
       resolve(likePostNotification);
     } catch (err) {
-      reject(err);
+      // reject(err);
+      resolve(err);
     }
   });
 };
@@ -225,19 +232,22 @@ exports.createCommentPostNotification = (
   return new Promise(async (resolve, reject) => {
     try {
       if (!commentId || !postId) {
-        return reject(new AppError(`Please fill all required fields`, 400));
+        // return reject(new AppError(`Please fill all required fields`, 400));
+        return resolve({ message: `Please fill all required fields` });
       }
 
       const comment = await Comment.findById(commentId);
 
       if (!comment) {
-        return reject(new AppError(`Comment not found`, 404));
+        // return reject(new AppError(`Comment not found`, 404));
+        return resolve({ message: `Comment not found` });
       }
 
       const post = await Post.findById(postId);
 
       if (!post) {
-        return reject(new AppError(`Post not found`, 404));
+        // return reject(new AppError(`Post not found`, 404));
+        return resolve({ message: `Post not found` });
       }
 
       if (comment.user._id.toString() === post.user._id.toString()) {
@@ -269,7 +279,8 @@ exports.createCommentPostNotification = (
 
       resolve(commentNotification);
     } catch (err) {
-      reject(err);
+      // reject(err);
+      resolve(err);
     }
   });
 };
@@ -282,19 +293,22 @@ exports.createLikeCommentNotification = (
   return new Promise(async (resolve, reject) => {
     try {
       if (!likerId || !commentId) {
-        return reject(new AppError(`Please fill all required fields`, 400));
+        // return reject(new AppError(`Please fill all required fields`, 400));
+        return resolve({ message: `Please fill all required fields` });
       }
 
       const liker = await Profile.findOne({ user: likerId });
 
       if (!liker) {
-        return reject(new AppError(`Liker's profile not found`, 404));
+        // return reject(new AppError(`Liker's profile not found`, 404));
+        return resolve({ message: `Liker's profile not found` });
       }
 
       const comment = await Comment.findById(commentId);
 
       if (!comment) {
-        return reject(new AppError(`Comment not found`, 404));
+        // return reject(new AppError(`Comment not found`, 404));
+        return resolve({ message: `Comment not found` });
       }
 
       if (likerId === comment.user._id.toString()) {
@@ -324,7 +338,8 @@ exports.createLikeCommentNotification = (
 
       resolve(likeCommentNotification);
     } catch (err) {
-      reject(err);
+      // reject(err);
+      resolve(err);
     }
   });
 };
@@ -336,14 +351,16 @@ exports.createReplyCommentNotification = (
   return new Promise(async (resolve, reject) => {
     try {
       if (!commentId) {
-        return reject(new AppError(`Please fill all required fields`, 400));
+        // return reject(new AppError(`Please fill all required fields`, 400));
+        return resolve({ message: `Please fill all required fields` });
       }
 
       const comment = await Comment.findById(commentId)
         .populate("post")
         .populate("parent");
       if (!comment) {
-        return reject(new AppError(`Comment not found`, 404));
+        // return reject(new AppError(`Comment not found`, 404));
+        return resolve({ message: `Comment not found` });
       }
       if (comment.parent.user._id.toString() === comment.user._id.toString()) {
         return resolve({});
@@ -382,7 +399,52 @@ exports.createReplyCommentNotification = (
       }
       resolve(replyCommentNotification);
     } catch (err) {
-      reject(err);
+      // reject(err);
+      resolve(err);
+    }
+  });
+};
+
+exports.createSharePostNotification = (postId, type = "share post") => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!postId) {
+        return resolve({ message: `Please fill all required fields` });
+      }
+
+      const post = await Post.findById(postId);
+
+      if (!post) {
+        return resolve({ message: `Post not found` });
+      }
+
+      if (post.user._id.toString() === post.parent.user._id.toString()) {
+        return resolve({ message: `` });
+      }
+      console.log(post);
+      let sharePostNotification;
+
+      sharePostNotification = await Notification.findOne({
+        recipient: post.parent.user._id.toString(),
+        contentId: post.parent._id.toString(),
+      });
+
+      if (!sharePostNotification) {
+        sharePostNotification = await this.createNotifications(
+          post.parent.user._id.toString(),
+          [post.user.profile.slug],
+          post.parent._id.toString(),
+          post.user.profile.avatar,
+          type
+        );
+      } else {
+        sharePostNotification.actors.push(post.user.profile.slug);
+        sharePostNotification.image = post.user.profile.avatar;
+        await sharePostNotification.save();
+      }
+      resolve(sharePostNotification);
+    } catch (err) {
+      resolve(err);
     }
   });
 };

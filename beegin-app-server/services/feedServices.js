@@ -317,10 +317,7 @@ exports.addNewPostToFollowingUserFeed = (postId, userId) => {
           user: userId,
           post: postId,
         });
-        console.log(feedEntries);
         const feeds = await Feed.create(feedEntries);
-        // const feeds = await Feed.create(feedEntries);
-        // console.log(feeds);
         resolve({
           status: "success",
           data: feeds,
