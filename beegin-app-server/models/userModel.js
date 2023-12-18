@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "business", "admin"],
       default: "user",
     },
+    isActived: {
+      type: Boolean,
+      default: true,
+    },
     password: {
       type: String,
       required: [true, "Please provide a password"],
