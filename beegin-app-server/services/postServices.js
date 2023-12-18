@@ -477,7 +477,7 @@ exports.getUsersLikingPost = (postId, query) => {
   });
 };
 
-exports.getUsersSharingPost = (postId, query) => {
+exports.getUsersSharingPost = (postId, userId, query) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!postId) {
@@ -502,14 +502,22 @@ exports.getUsersSharingPost = (postId, query) => {
         parent: postId,
         isActived: true,
       });
-      posts.map((post) => {
+
+      const promises = posts.map(async (post) => {
         delete post.parent;
-        return post;
+        const isLiked = (
+          await this.isPostLikedByUser(post._id.toString(), userId)
+        ).data;
+        console.log(isLiked);
+        return { ...post, isLiked };
       });
+
+      const result = await Promise.all(promises);
+      console.log(result);
       resolve({
         status: "success",
         total: total,
-        data: posts,
+        data: result,
       });
     } catch (err) {
       reject(err);

@@ -70,6 +70,11 @@ exports.getUsersLikingPost = catchAsync(async (req, res, next) => {
 });
 
 exports.getUsersSharingPost = catchAsync(async (req, res, next) => {
-  const data = await postServices.getUsersSharingPost(req.params.id, req.query);
+  console.log(req.user);
+  const data = await postServices.getUsersSharingPost(
+    req.params.id,
+    req.user.id,
+    req.query
+  );
   res.status(200).json(data);
 });
