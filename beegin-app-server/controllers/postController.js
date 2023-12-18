@@ -68,3 +68,8 @@ exports.getUsersLikingPost = catchAsync(async (req, res, next) => {
   const data = await postServices.getUsersLikingPost(req.params.id, req.query);
   res.status(200).json(data);
 });
+
+exports.getUsersSharingPost = catchAsync(async (req, res, next) => {
+  const data = await postServices.getUsersSharingPost(req.params.id, req.query);
+  res.status(200).json(data);
+});
