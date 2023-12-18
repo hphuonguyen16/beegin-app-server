@@ -19,12 +19,12 @@ const checkDeletingPermission = async (postId, reject, userId) => {
   const post = await Post.findById(postId);
   if (!post) {
     reject(new AppError(`Post not found`, 404));
-  } else if (post.user != userId) {
+  } else if (post.user._id.toString() !== userId) {
     reject(
       new AppError(`You do not have permission to perform this action`, 403)
     );
   } else if (!post.isActived) {
-    reject(new AppError(`This post is longer existed`, 404));
+    reject(new AppError(`This post no longer exists`, 404));
   } else {
     return true;
   }
@@ -40,7 +40,7 @@ const checkPost = async (postId, reject, userId = null) => {
       new AppError(`You do not have permission to perform this action`, 403)
     );
   } else if (!post.isActived) {
-    reject(new AppError(`This post is longer existed`, 404));
+    reject(new AppError(`This post no longer exists`, 404));
   } else {
     return true;
   }
@@ -120,6 +120,7 @@ exports.updatePost = (postId, userId, data) => {
 exports.deletePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
+      console.log("from deletepost", userId, typeof userId);
       if ((await checkDeletingPermission(postId, reject, userId)) === true) {
         const doc = await Post.findByIdAndUpdate(postId, { isActived: false });
 
@@ -447,7 +448,7 @@ exports.getUsersLikingPost = (postId, query) => {
       }
 
       const post = await Post.findById(postId);
-      if (!post) {
+      if (!post || !post?.isActived) {
         return reject(new AppError(`Post not found`, 404));
       }
 
@@ -470,6 +471,36 @@ exports.getUsersLikingPost = (postId, query) => {
         status: "success",
         total: total,
         data: data,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+exports.getUsersSharingPost = (postId, query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!postId) {
+        return reject(new AppError(`Empty post Id`, 400));
+      }
+
+      const post = await Post.findById(postId);
+      if (!post || !post?.isActived) {
+        return reject(new AppError(`Post not found`, 404));
+      }
+
+      const features = new APIFeatures(
+        Post.find({ parent: postId, isActived: true }),
+        query
+      )
+        .sort()
+        .paginate();
+
+      const posts = await features.query;
+      resolve({
+        status: "success",
+        data: posts,
       });
     } catch (err) {
       reject(err);
