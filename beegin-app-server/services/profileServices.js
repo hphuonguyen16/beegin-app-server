@@ -28,6 +28,7 @@ exports.searchUser = (searchText, query) => {
               },
             },
             { bio: { $regex: regex } },
+            { slug: { $regex: regex } },
           ],
         }),
         query
