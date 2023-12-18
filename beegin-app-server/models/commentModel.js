@@ -5,6 +5,9 @@ const Post = require("./postModel");
 const CommentSchema = new mongoose.Schema({
   content: {
     type: String,
+    maxLength: 1000,
+    minLength: 1,
+    trim: true,
     required: [true, "Please provide a Comment name"],
   },
   user: {

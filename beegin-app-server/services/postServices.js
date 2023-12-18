@@ -34,7 +34,7 @@ const checkPost = async (postId, reject, userId = null) => {
   const post = await Post.findById(postId);
   if (!post) {
     reject(new AppError(`Post not found`, 404));
-  } else if (userId && post.user.toString() !== userId) {
+  } else if (userId && post.user._id.toString() !== userId) {
     // only user of the post has permission to update post
     reject(
       new AppError(`You do not have permission to perform this action`, 403)
@@ -120,7 +120,6 @@ exports.updatePost = (postId, userId, data) => {
 exports.deletePost = (postId, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log("from deletepost", userId, typeof userId);
       if ((await checkDeletingPermission(postId, reject, userId)) === true) {
         const doc = await Post.findByIdAndUpdate(postId, { isActived: false });
 
