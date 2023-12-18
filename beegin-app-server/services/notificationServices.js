@@ -54,14 +54,29 @@ exports.setNotificationRead = (notiId, userId, read = true) => {
         return reject(new AppError(`Notification not found`, 404));
       }
 
-      let result;
       if (notification.recipient.toString() !== userId) {
         return reject(
           new AppError(`You do not have permission to perform this action`, 401)
         );
       }
-      notification.read = read;
-      result = await notification.save();
+
+      // notification.read = read;
+      // console.log(notification.timestamps);
+      // notification.timestamps = false;
+      // notification.unmarkModified("updatedAt");
+      let result;
+      if (notification.read !== read) {
+        result = await Notification.findOneAndUpdate(
+          { _id: notification._id },
+          { read: read },
+          {
+            new: true,
+            upsert: true,
+            timestamps: { createdAt: false, updatedAt: false },
+          }
+        );
+      }
+      // result = await notification.save();
       resolve(result);
     } catch (err) {
       reject(err);
