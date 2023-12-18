@@ -67,6 +67,9 @@ exports.login = (data) => {
       if (!user || !(await user.correctPassword(password, user.password))) {
         reject(new AppError("Incorrect email or password", 401));
       }
+      if (user.isActived === false) { 
+        reject(new AppError("Your account has been locked. Please contact us for help", 401));
+      }
       if (!user.verify) {
         if (!user.verifyToken) {
           const verifyToken = crypto.randomBytes(32).toString("hex");
