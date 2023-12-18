@@ -490,16 +490,26 @@ exports.getUsersSharingPost = (postId, query) => {
         return reject(new AppError(`Post not found`, 404));
       }
 
+      if (!query.fields) query.fields = "-parent";
       const features = new APIFeatures(
-        Post.find({ parent: postId, isActived: true }),
+        Post.find({ parent: postId, isActived: true }).lean(),
         query
       )
         .sort()
         .paginate();
 
       const posts = await features.query;
+      const total = await Post.countDocuments({
+        parent: postId,
+        isActived: true,
+      });
+      posts.map((post) => {
+        delete post.parent;
+        return post;
+      });
       resolve({
         status: "success",
+        total: total,
         data: posts,
       });
     } catch (err) {

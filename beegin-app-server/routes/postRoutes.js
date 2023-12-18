@@ -41,7 +41,8 @@ router
     postController.unlikePost
   );
 
-router.route("/:id/users").get(postController.getUsersLikingPost);
+router.route("/:id/users/like").get(postController.getUsersLikingPost);
+router.route("/:id/users/share").get(postController.getUsersSharingPost);
 //combine route with comment
 //ex /api/v1/post/postId/comment/
 router.use("/:postId/comments", commentRouters);
