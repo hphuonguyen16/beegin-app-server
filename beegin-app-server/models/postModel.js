@@ -6,7 +6,12 @@ const HashtagPost = require("./hashtagPostModel");
 const PostSchema = new mongoose.Schema(
   {
     // title: String,
-    content: String,
+    content: {
+      type: String,
+      maxLength: 4096,
+      trim: true,
+      required: [true, "A post must contain content"],
+    },
     images: {
       type: [String],
       validate: {

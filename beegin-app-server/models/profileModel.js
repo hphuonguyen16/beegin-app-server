@@ -4,24 +4,43 @@ const Profileschema = new mongoose.Schema(
   {
     firstname: {
       type: String,
+      maxLength: 20,
+      minLength: 2,
+      trim: true,
       required: [true, "Please tell us your first name!"],
+      validate: {
+        validator: function (value) {
+          return /^[a-zA-Z0-9]+$/.test(value);
+        },
+        message: "Firstname only contains characters and numbers",
+      },
     },
     lastname: {
       type: String,
+      maxLength: 20,
+      minLength: 2,
+      trim: true,
       required: [true, "Please tell us your last name!"],
+      validate: {
+        validator: function (value) {
+          return /^[a-zA-Z0-9]+$/.test(value);
+        },
+        message: "Lastname only contains characters, numbers and underscore",
+      },
     },
     slug: {
       type: String,
       required: [true, "Please tell us your slug!"],
+      maxLength: 30,
+      minLength: 4,
+      trim: true,
       unique: true,
-      // validate: {
-      //   validator: function (value) {
-      //     // Check if the slug starts with '@' and has no spaces
-      //     return /^@[^ ]*$/.test(value);
-      //   },
-      //   message:
-      //     "Invalid slug format. It should start with '@' and have no spaces.",
-      // },
+      validate: {
+        validator: function (value) {
+          return /^[a-zA-Z0-9_]+$/.test(value);
+        },
+        message: "A slug only contains characters, numbers and underscore",
+      },
     },
     gender: {
       type: Boolean,
