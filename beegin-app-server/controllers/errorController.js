@@ -85,11 +85,10 @@ module.exports = (err, req, res, next) => {
 
   let error = { ...err };
   error.message = err.message;
-
   const checkValidation = error._message?.includes("validation");
-
   if (checkValidation) error = handleValidationErrorDB(error);
-  if (error.name === "ValidationError") error = handleValidationErrorDB(error);
+  if (error.name === "ValidationError" || err?.name)
+    error = handleValidationErrorDB(error);
   if (error.name === "CastError") error = handleCastErrorDB(error);
   if (error.code === 11000) error = handleDuplicateFieldsDB(error);
   if (error.name === "JsonWebTokenError") error = handleJWTError();
@@ -97,4 +96,3 @@ module.exports = (err, req, res, next) => {
 
   sendErrorProd(error, req, res);
 };
-
