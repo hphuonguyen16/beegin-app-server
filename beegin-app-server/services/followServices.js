@@ -64,11 +64,11 @@ exports.getAllFollowings = (id, myId) => {
       } else {
         const following = await FollowModel.find({ follower: id })
           .populate({
-            path: 'following',
-            model: 'User',
-            select: 'profile',
+            path: "following",
+            model: "User",
+            select: "profile",
           })
-          .select('following');
+          .select("following");
         const data = await Promise.all(
           following.map(async (following) => {
             if (following && following.following && following.following._id) {
@@ -81,7 +81,7 @@ exports.getAllFollowings = (id, myId) => {
         );
         const filteredData = data.filter((item) => item !== null);
         resolve({
-          status: 'Success',
+          status: "Success",
           data: filteredData,
         });
       }
@@ -99,11 +99,11 @@ exports.getAllFollowers = (id, myId) => {
       } else {
         const follower = await FollowModel.find({ following: id })
           .populate({
-            path: 'follower',
-            model: 'User',
-            select: 'profile',
+            path: "follower",
+            model: "User",
+            select: "profile",
           })
-          .select('follower');
+          .select("follower");
         const data = await Promise.all(
           follower.map(async (follower) => {
             if (follower && follower.follower && follower.follower._id) {
@@ -116,7 +116,7 @@ exports.getAllFollowers = (id, myId) => {
         );
         const filteredData = data.filter((item) => item !== null);
         resolve({
-          status: 'Success',
+          status: "Success",
           data: filteredData,
         });
       }
@@ -134,15 +134,15 @@ exports.getMyFollowingList = (id) => {
       } else {
         const data = await FollowModel.find({ follower: id })
           .populate({
-            path: 'following',
-            model: 'User',
-            select: 'profile',
+            path: "following",
+            model: "User",
+            select: "profile",
           })
-          .select('following');
+          .select("following");
         const filteredData = data.filter((item) => item && item.following);
 
         resolve({
-          status: 'Success',
+          status: "Success",
           data: filteredData,
         });
       }
@@ -153,18 +153,18 @@ exports.getMyFollowingList = (id) => {
 };
 
 exports.getMyFollowerList = async (id) => {
- return new Promise(async (resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       if (!id) {
         reject(new AppError(`Missing parameter`, 400));
       } else {
         const follower = await FollowModel.find({ following: id })
           .populate({
-            path: 'follower',
-            model: 'User',
-            select: 'profile',
+            path: "follower",
+            model: "User",
+            select: "profile",
           })
-          .select('follower');
+          .select("follower");
         const data = await Promise.all(
           follower.map(async (follower) => {
             if (follower && follower.follower && follower.follower._id) {
@@ -177,7 +177,7 @@ exports.getMyFollowerList = async (id) => {
         );
         const filteredData = data.filter((item) => item !== null);
         resolve({
-          status: 'Success',
+          status: "Success",
           data: filteredData,
         });
       }
@@ -236,7 +236,7 @@ exports.getNumberOfFollows = (id) => {
       reject(error);
     }
   });
-};   
+};
 
 exports.isFollowing = (idFollower, followingId) => {
   return new Promise(async (resolve, reject) => {
