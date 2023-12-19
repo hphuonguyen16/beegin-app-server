@@ -9,6 +9,7 @@ const Hashtag = require("./../models/hashtagModel");
 
 const feedServices = require("./feedServices");
 const notiServices = require("./notificationServices");
+const followServices = require("./followServices");
 
 const checkDeletingPermission = async (postId, reject, userId) => {
   // admins always have permission to delete post
@@ -439,7 +440,7 @@ exports.getLatestPostsByUser = (
   });
 };
 
-exports.getUsersLikingPost = (postId, query) => {
+exports.getUsersLikingPost = (postId, userId, query) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!postId) {
@@ -464,7 +465,18 @@ exports.getUsersLikingPost = (postId, query) => {
         .paginate();
 
       const users = await features.query;
-      const data = users.map((user) => user.user);
+      const promises = users.map(async (user) => {
+        // console.log("0", userId, user._id.toString());
+        const isFollowing = await followServices.isFollowing(
+          userId,
+          user.user._id
+        );
+        console.log(isFollowing);
+        return { user: user.user, isFollowing: isFollowing.data };
+      });
+      // const data = users.map((user) => user.user);
+      const data = await Promise.all(promises);
+      console.log(data);
       const total = await LikePost.countDocuments({ post: postId });
       resolve({
         status: "success",

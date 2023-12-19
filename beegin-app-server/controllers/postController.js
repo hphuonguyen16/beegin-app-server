@@ -65,7 +65,11 @@ exports.getPostByUserId = catchAsync(async (req, res, next) => {
 });
 
 exports.getUsersLikingPost = catchAsync(async (req, res, next) => {
-  const data = await postServices.getUsersLikingPost(req.params.id, req.query);
+  const data = await postServices.getUsersLikingPost(
+    req.params.id,
+    req.user.id,
+    req.query
+  );
   res.status(200).json(data);
 });
 
