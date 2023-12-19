@@ -188,7 +188,9 @@ exports.getPostsByMe = (userId) => {
 exports.getPostByUserId = (userId, myId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const posts = await Post.find({ user: userId }).sort({ createdAt: -1 });
+      const posts = await Post.find({ user: userId, isActived: true }).sort({
+        createdAt: -1,
+      });
       const postsWithLikeStatus = await Promise.all(
         posts.map(async (post) => {
           const isLiked = (await LikePost.exists({
