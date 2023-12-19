@@ -462,7 +462,8 @@ exports.getUsersLikingPost = (postId, userId, query) => {
             path: "user",
             select: "_id email role profile",
           })
-          .select("user"),
+          .select("user")
+          .lean(),
         query
       )
         .sort()
@@ -471,12 +472,11 @@ exports.getUsersLikingPost = (postId, userId, query) => {
       const users = await features.query;
       const promises = users.map(async (user) => {
         // console.log("0", userId, user._id.toString());
-        const isFollowing = await followServices.isFollowing(
-          userId,
-          user.user._id
-        );
+        const isFollowing = (
+          await followServices.isFollowing(userId, user.user._id)
+        ).data;
         console.log(isFollowing);
-        return { user: user.user, isFollowing: isFollowing.data };
+        return { ...user.user, isFollowing };
       });
       // const data = users.map((user) => user.user);
       const data = await Promise.all(promises);
