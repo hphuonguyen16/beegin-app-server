@@ -69,6 +69,10 @@ exports.updateMe = (id, data) => {
             background: data.background,
             gender: data.gender,
             slug: data.slug,
+          },
+          {
+            runValidators: true,
+            context: "query",
           }
         );
         resolve({
@@ -89,15 +93,17 @@ exports.lockOrUnlockAccount = (id) => {
       } else {
         let account = await UserModel.findById(id);
         if (account) {
-          const updatedIsActived = account.isActived !== undefined ? !account.isActived : false;
-          await UserModel.findByIdAndUpdate(id, { isActived: updatedIsActived });
+          const updatedIsActived =
+            account.isActived !== undefined ? !account.isActived : false;
+          await UserModel.findByIdAndUpdate(id, {
+            isActived: updatedIsActived,
+          });
         }
 
         resolve({
           status: "Success",
         });
       }
-      
     } catch (error) {
       reject(error);
     }
