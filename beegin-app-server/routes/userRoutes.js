@@ -29,6 +29,7 @@ router.get("/overview/:year", userController.getOverview);
 
 router.post("/business/approve", businessController.approveBusinessRequest);
 router.post("/business/reject", businessController.rejectBusinessRequest);
+router.post("/business/cancel", businessController.cancelBusinessRequest);
 router.get("/business/requests", businessController.getBusinessRequests);
 router.patch("/lockOrUnlockAccount/:id", userController.lockOrUnlockAccount);
 
