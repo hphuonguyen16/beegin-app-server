@@ -409,6 +409,44 @@ exports.createBusinessPost = (data) => {
   });
 };
 
+exports.getPostsFromProfile = (userId, query, myId = null) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!userId) {
+        return reject(new AppError(`Please specific user id`, 400));
+      }
+
+      const features = new APIFeatures(
+        Post.find({ user: userId, isActived: true }).lean(),
+        query
+      )
+        .sort()
+        .paginate();
+
+      const posts = await features.query;
+
+      if (!myId) {
+        myId = userId;
+      }
+      const promises = posts.map(async (post) => {
+        const isLiked = await this.isPostLikedByUser(post._id.toString(), myId);
+        return { ...post, isLiked: isLiked.data };
+      });
+      const data = await Promise.all(promises);
+      const total = await Post.countDocuments({
+        user: userId,
+        isActived: true,
+      });
+      resolve({
+        status: "success",
+        total,
+        data: data,
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
 exports.getPostsByUser = (userId, query) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -416,7 +454,10 @@ exports.getPostsByUser = (userId, query) => {
         reject(new AppError(`Please fill all required fields`, 400));
       }
 
-      const features = new APIFeatures(Post.find({ user: userId }), query)
+      const features = new APIFeatures(
+        Post.find({ user: userId, isActived: true }),
+        query
+      )
         .sort()
         .paginate();
       const posts = await features.query;
