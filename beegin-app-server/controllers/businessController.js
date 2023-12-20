@@ -17,6 +17,14 @@ exports.rejectBusinessRequest = catchAsync(async (req, res) => {
   res.status(200).json(data);
 });
 
+exports.cancelBusinessRequest = catchAsync(async (req, res) => {
+  console.log(req.body);
+  const { id } = req.body;
+  const data = await businessServices.handleBusinessRequest(id, "canceled");
+
+  res.status(200).json(data);
+});
+
 exports.getBusinessRequests = catchAsync(async (req, res) => {
   console.log(req.body);
 

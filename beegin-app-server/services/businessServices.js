@@ -65,6 +65,25 @@ exports.businessSignUp = (data) => {
   });
 };
 
+exports.getBusinessRequestById = (requestId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!requestId) {
+        return reject(new AppError(`Empty request id`, 400));
+      }
+
+      const request = BusinessRequest.findById(id);
+      if (!request) {
+        return reject(new AppError(`Business request not found`, 404));
+      }
+
+      resolve(request);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
 exports.getBusinessRequests = (status, query) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -116,23 +135,23 @@ exports.handleBusinessRequest = (id, status) => {
         { new: true }
       );
 
-      let result;
       if (status === "approved") {
-        result = await UserModel.findByIdAndUpdate(id, {
-          approved: true,
-        });
-
-        await sendBussinessAprrovalEmail();
+        user.approved = true;
+        await sendBussinessAprrovalEmail(
+          user.email,
+          "Business Account Request"
+        );
+        // await sendBussinessAprrovalEmail();
       } else if (status === "rejected") {
-        result = await UserModel.findByIdAndUpdate(id, {
-          approved: false,
-        });
-        console.log(typeof sendBusinessRejectionEmail);
+        user.approved = false;
         await sendBusinessRejectionEmail(
           user.email,
           "Business Account Request"
         );
+      } else if (status === "canceled") {
+        user.approved = false;
       }
+      user.save();
       resolve(request);
     } catch (err) {
       reject(err);

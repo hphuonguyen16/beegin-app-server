@@ -87,7 +87,7 @@ module.exports = (err, req, res, next) => {
   error.message = err.message;
   const checkValidation = error._message?.includes("validation");
   if (checkValidation) error = handleValidationErrorDB(error);
-  if (error.name === "ValidationError" || err?.name)
+  if (error.name === "ValidationError" || err?.name === "ValidationError")
     error = handleValidationErrorDB(error);
   if (error.name === "CastError") error = handleCastErrorDB(error);
   if (error.code === 11000) error = handleDuplicateFieldsDB(error);
