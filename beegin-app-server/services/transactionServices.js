@@ -1,7 +1,6 @@
 const PostTransaction = require("./../models/postTransactionModel");
 const AppError = require("./../utils/appError");
 const APIFeatures = require("./../utils/apiFeatures");
-const mongoose = require("mongoose");
 
 exports.createTransaction = (data) => {
   return new Promise(async (resolve, reject) => {
