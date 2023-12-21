@@ -42,7 +42,7 @@ const createRefreshToken = async (user, res) => {
   const cookieOptionsRefresh = {
     expires: new Date(
       Date.now() +
-        process.env.JWT_COOKIE_REFRESH_TOKEN_EXPIRES_IN * 24 * 60 * 60 * 1000
+      process.env.JWT_COOKIE_REFRESH_TOKEN_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
     secure: false,
@@ -287,32 +287,13 @@ exports.restrictTo = (...roles) => {
 //   }
 // });
 
-// exports.resetPassword = catchAsync(async (req, res, next) => {
-//   // 1) Get user based on the token
-//   const hashedToken = crypto
-//     .createHash('sha256')
-//     .update(req.params.token)
-//     .digest('hex');
-
-//   const user = await User.findOne({
-//     passwordResetToken: hashedToken,
-//     passwordResetExpires: { $gt: Date.now() }
-//   });
-
-//   // 2) If token has not expired, and there is user, set the new password
-//   if (!user) {
-//     return next(new AppError('Token is invalid or has expired', 400));
-//   }
-//   user.password = req.body.password;
-//   user.passwordConfirm = req.body.passwordConfirm;
-//   user.passwordResetToken = undefined;
-//   user.passwordResetExpires = undefined;
-//   await user.save();
-
-//   // 3) Update changedPasswordAt property for the user
-//   // 4) Log the user in, send JWT
-//   createSendToken(user, 200, res);
-// });
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  await authService.resetPassword(req.body.email);
+  res.status(200).json({
+    status: "success",
+    message: "Your password has been reset.",
+  });
+});
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // 1) Get user from collection
