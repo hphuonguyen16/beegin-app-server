@@ -1,8 +1,10 @@
 const ProfileModel = require("./../models/profileModel");
 const UserModel = require("./../models/userModel");
 const PostModel = require("./../models/postModel");
-
 const AppError = require("./../utils/appError");
+
+const crypto = require("crypto");
+
 exports.getProfileByID = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -104,6 +106,7 @@ exports.lockOrUnlockAccount = (id) => {
           status: "Success",
         });
       }
+
     } catch (error) {
       reject(error);
     }
@@ -186,5 +189,5 @@ exports.getOverview = (year) => {
 };
 
 exports.getUserPreferences = (userId) => {
-  return new Promise(async (resolve, reject) => {});
+  return new Promise(async (resolve, reject) => { });
 };

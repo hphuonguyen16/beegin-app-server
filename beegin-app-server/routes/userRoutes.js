@@ -10,7 +10,7 @@ router.get("/logout", authController.logout);
 router.get("/refresh", authController.refreshToken);
 router.get("/:id/verify/:token", authController.verifyEmail);
 router.post("/business/signup", authController.businessSignup);
-// router.post('/forgotPassword', authController.forgotPassword);
+router.post('/forgotPassword', authController.resetPassword);
 // router.patch('/resetPassword/:token', authController.resetPassword);
 
 // Protect all routes after this middleware

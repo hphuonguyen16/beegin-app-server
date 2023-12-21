@@ -5,6 +5,8 @@ const AppError = require("./../utils/appError");
 const crypto = require("crypto");
 
 const { sendEmail } = require("./../utils/sendEmail");
+const sendResetPwEmail = require("../utils/sendResetPwEmail");
+
 exports.signup = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -67,7 +69,7 @@ exports.login = (data) => {
       if (!user || !(await user.correctPassword(password, user.password))) {
         reject(new AppError("Incorrect email or password", 401));
       }
-      if (user.isActived === false) { 
+      if (user.isActived === false) {
         reject(new AppError("Your account has been locked. Please contact us for help", 401));
       }
       if (!user.verify) {
@@ -179,3 +181,38 @@ exports.businessSignUp = (data) => {
     }
   });
 };
+
+exports.resetPassword = (email) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!email) {
+        reject(new AppError(`Missing parameter`, 400));
+      } else {
+        let user = await UserModel.findOne({ email: email });
+        if (user) {
+
+          const LENGTH = 12;
+          const CHARACTERS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$';
+          // console.log(generatedPassword);
+          const generatedPassword = Array.from(crypto.randomFillSync(new Uint32Array(LENGTH)))
+            .map((x) => CHARACTERS[x % CHARACTERS.length])
+            .join('');
+          user.password = generatedPassword;
+          user.passwordConfirm = generatedPassword;
+          user.save();
+
+          await sendResetPwEmail(email, "Password Reset", generatedPassword);
+
+          resolve({
+            status: "Success",
+          });
+        }
+        else {
+          reject(new AppError('This email has not been registered', 401))
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
