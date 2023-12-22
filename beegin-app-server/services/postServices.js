@@ -517,7 +517,8 @@ exports.getUsersLikingPost = (postId, userId, query) => {
           await followServices.isFollowing(userId, user.user._id)
         ).data;
         console.log(isFollowing);
-        return { ...user.user, isFollowing };
+        user.user.profile.isFollowing = isFollowing;
+        return { ...user.user };
       });
       // const data = users.map((user) => user.user);
       const data = await Promise.all(promises);
