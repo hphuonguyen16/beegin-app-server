@@ -43,6 +43,29 @@ exports.getNotificationsByUser = (userId, query, all = true) => {
   });
 };
 
+exports.setAllNotificationsRead = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!userId) {
+        return reject(new AppError(`Please fill user id`, 400));
+      }
+
+      const affected = await Notification.updateMany(
+        { recipient: userId, read: false },
+        { read: true },
+        {
+          new: true,
+          upsert: true,
+          timestamps: { createdAt: false, updatedAt: false },
+        }
+      );
+
+      resolve(affected);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
 exports.setNotificationRead = (notiId, userId, read = true) => {
   return new Promise(async (resolve, reject) => {
     try {

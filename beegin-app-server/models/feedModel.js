@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-const postServices = require("./../services/postServices");
 const FeedSchema = new mongoose.Schema(
   {
     user: {
@@ -44,19 +43,6 @@ const FeedSchema = new mongoose.Schema(
 
 FeedSchema.index({ user: 1 });
 
-// FeedSchema.virtual("isLiked").get(async function () {
-//   const isLiked = await postServices.isPostLikedByUser(this.post, this.user);
-//   console.log(isLiked.data);
-//   return isLiked.data ? true : false;
-// });
-
-// FeedSchema.post(/find/, async function (doc, next) {
-//   const isLiked = await postServices.isPostLikedByUser(doc.post, doc.user);
-//   console.log(doc);
-//   console.log(isLiked);
-//   doc.isLiked = isLiked.data;
-//   next();
-// });
 const FeedModel = mongoose.model("Feed", FeedSchema);
 
 module.exports = FeedModel;

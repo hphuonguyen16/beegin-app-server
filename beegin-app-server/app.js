@@ -27,6 +27,7 @@ const transactionRouter = require("./routes/transactionRoutes");
 const priceRouter = require("./routes/unitPriceRoutes");
 const feedRouter = require("./routes/feedRoutes");
 const notiRouter = require("./routes/notificationRoutes");
+const issueRouter = require("./routes/issueRoutes");
 
 const cors = require("cors");
 
@@ -132,6 +133,7 @@ app.use("/api/v1/transactions", transactionRouter);
 app.use("/api/v1/prices", priceRouter);
 app.use("/api/v1/feed", feedRouter);
 app.use("/api/v1/notifications", notiRouter);
+app.use("/api/v1/issues", issueRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

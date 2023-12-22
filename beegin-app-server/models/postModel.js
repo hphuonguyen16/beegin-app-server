@@ -10,7 +10,6 @@ const PostSchema = new mongoose.Schema(
       type: String,
       maxLength: 4096,
       trim: true,
-      required: [true, "A post must contain content"],
     },
     images: {
       type: [String],
