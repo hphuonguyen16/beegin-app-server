@@ -10,6 +10,13 @@ const PostSchema = new mongoose.Schema(
       type: String,
       maxLength: 4096,
       trim: true,
+      validate: {
+        validator: function (value) {
+          const regex = /[\s\u2000-\u200B\u2028\u2029\u3000]/u;
+          return !regex.test(value);
+        },
+        message: "A slug only contains characters, numbers and underscore",
+      },
     },
     images: {
       type: [String],
