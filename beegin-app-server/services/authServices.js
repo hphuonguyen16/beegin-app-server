@@ -70,7 +70,12 @@ exports.login = (data) => {
         reject(new AppError("Incorrect email or password", 401));
       }
       if (user.isActived === false) {
-        reject(new AppError("Your account has been locked. Please contact us for help", 401));
+        reject(
+          new AppError(
+            "Your account has been locked. Please contact us for help",
+            401
+          )
+        );
       }
       if (!user.verify) {
         if (!user.verifyToken) {
@@ -83,6 +88,15 @@ exports.login = (data) => {
         }
         reject(
           new AppError("An Email sent to your account! Please verify", 401)
+        );
+      }
+
+      if (user.role === "business" && user.approved === false) {
+        return reject(
+          new AppError(
+            `Your business profile has not been approved yet. Please check your email`,
+            401
+          )
         );
       }
       resolve(user);
@@ -190,13 +204,15 @@ exports.resetPassword = (email) => {
       } else {
         let user = await UserModel.findOne({ email: email });
         if (user) {
-
           const LENGTH = 12;
-          const CHARACTERS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$';
+          const CHARACTERS =
+            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$";
           // console.log(generatedPassword);
-          const generatedPassword = Array.from(crypto.randomFillSync(new Uint32Array(LENGTH)))
+          const generatedPassword = Array.from(
+            crypto.randomFillSync(new Uint32Array(LENGTH))
+          )
             .map((x) => CHARACTERS[x % CHARACTERS.length])
-            .join('');
+            .join("");
           user.password = generatedPassword;
           user.passwordConfirm = generatedPassword;
           user.save();
@@ -206,13 +222,12 @@ exports.resetPassword = (email) => {
           resolve({
             status: "Success",
           });
-        }
-        else {
-          reject(new AppError('This email has not been registered', 401))
+        } else {
+          reject(new AppError("This email has not been registered", 401));
         }
       }
     } catch (error) {
       reject(error);
     }
   });
-}
+};
