@@ -383,6 +383,9 @@ exports.createBusinessPost = (data) => {
         targetAge,
         potentialReach,
       } = data;
+      if (!targetAge) {
+        targetAge = [0, 999];
+      }
       const post = await BusinessPost.create({
         content: content,
         images: images,
