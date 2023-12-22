@@ -10,7 +10,7 @@ const Profileschema = new mongoose.Schema(
       required: [true, "Please tell us your first name!"],
       validate: {
         validator: function (value) {
-          return /^[a-zA-Z0-9]+$/.test(value);
+          return /^[a-zA-Z0-9_\p{L}]+$/u.test(value);
         },
         message: "Firstname only contains characters and numbers",
       },
@@ -23,7 +23,7 @@ const Profileschema = new mongoose.Schema(
       required: [true, "Please tell us your last name!"],
       validate: {
         validator: function (value) {
-          return /^[a-zA-Z0-9]+$/.test(value);
+          return /^[a-zA-Z0-9_\p{L}]+$/u.test(value);
         },
         message: "Lastname only contains characters, numbers and underscore",
       },

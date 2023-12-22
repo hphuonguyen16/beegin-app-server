@@ -11,4 +11,5 @@ router
   .post(notiController.createNotifications)
   .patch(notiController.setNotificationRead);
 
+router.route("/all").patch(notiController.setAllNotificationsRead);
 module.exports = router;

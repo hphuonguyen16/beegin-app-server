@@ -43,13 +43,14 @@ exports.getFeedByUser = (user, query) => {
             select:
               "content images imageVideo categories numLikes numComments numShares createdAt user isActived parent id",
             match: { isActived: true },
-            // options: { applyHooks: true },
+            options: { applyHooks: true },
             populate: {
               path: "parent",
+
               select:
                 "content images imageVideo categories numLikes numComments numShares createdAt isActived user id",
               match: { isActived: true },
-              // options: { applyHooks: true },
+              options: { applyHooks: true },
             },
           })
           .select("post seen type isLiked createdAt"),
@@ -58,8 +59,13 @@ exports.getFeedByUser = (user, query) => {
         .sort()
         .paginate();
 
-      const feeds = await features.query.lean();
-
+      let feeds = await features.query.lean();
+      feeds = feeds.filter((feed) => feed.post && feed.post.isActived);
+      feeds = Array.from(new Set(feeds.map((feed) => feed.post._id))).map(
+        (postId) => {
+          return feeds.find((feed) => feed.post._id === postId);
+        }
+      );
       const isLikedPromises = feeds.map(async (feed) => {
         const isLiked = await postServices.isPostLikedByUser(
           feed.post._id.toString(),
@@ -74,10 +80,13 @@ exports.getFeedByUser = (user, query) => {
       // probability for adding post to user feed
       const probability = Math.random();
       console.log(probability);
-      if (probability < 0.2) {
+      if (probability < 0.3) {
         await this.addAdsToUserFeed(user);
       }
-      const total = await Feed.countDocuments({ user: user });
+      const total = await Feed.countDocuments({
+        user: user,
+        dateToBeSeen: { $lte: currentDate },
+      });
       resolve({
         status: "success",
         total: total,
@@ -135,6 +144,7 @@ exports.addAdsToUserFeed = (user) => {
       ]);
       let feed;
       if (ads.length > 0) {
+        await Feed.deleteMany({ post: ads[0], user: user });
         feed = await Feed.create({
           post: ads[0],
           type: "advertisement",

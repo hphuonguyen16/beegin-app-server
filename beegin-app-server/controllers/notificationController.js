@@ -16,6 +16,15 @@ exports.getNotificationsByUser = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.setAllNotificationsRead = catchAsync(async (req, res, next) => {
+  console.log(req.user);
+  const data = await notiServices.setAllNotificationsRead(req.user.id);
+  res.status(200).json({
+    status: "success",
+    data: data,
+  });
+});
+
 exports.setNotificationRead = catchAsync(async (req, res, next) => {
   const data = await notiServices.setNotificationRead(
     req.body.notiId,
