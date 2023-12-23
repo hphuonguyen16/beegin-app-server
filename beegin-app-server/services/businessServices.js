@@ -11,6 +11,7 @@ const {
   sendBusinessRejectionEmail,
   sendBussinessAprrovalEmail,
 } = require("./../utils/sendEmail");
+const User = require("./../models/userModel");
 exports.businessSignUp = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -136,22 +137,21 @@ exports.handleBusinessRequest = (id, status) => {
       );
 
       if (status === "approved") {
-        user.approved = true;
         await sendBussinessAprrovalEmail(
           user.email,
           "Business Account Request"
         );
+        await User.findByIdAndUpdate(id, { approved: true });
         // await sendBussinessAprrovalEmail();
       } else if (status === "rejected") {
-        user.approved = false;
         await sendBusinessRejectionEmail(
           user.email,
           "Business Account Request"
         );
+        await User.findByIdAndUpdate(id, { approved: false });
       } else if (status === "canceled") {
-        user.approved = false;
+        await User.findByIdAndUpdate(id, { approved: false });
       }
-      user.save();
       resolve(request);
     } catch (err) {
       reject(err);
