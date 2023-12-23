@@ -8,15 +8,15 @@ const PostSchema = new mongoose.Schema(
     // title: String,
     content: {
       type: String,
-      maxLength: 4096,
+      maxLength: 4096 * 2,
       trim: true,
-      validate: {
-        validator: function (value) {
-          const regex = /[\s\u2000-\u200B\u2028\u2029\u3000]/u;
-          return !regex.test(value);
-        },
-        message: "A slug only contains characters, numbers and underscore",
-      },
+      // validate: {
+      //   validator: function (value) {
+      //     const regex = /[\s\u2000-\u200B\u2028\u2029\u3000]/u;
+      //     return !regex.test(value);
+      //   },
+      //   message: "A Post only contains characters, numbers and underscore",
+      // },
     },
     images: {
       type: [String],
