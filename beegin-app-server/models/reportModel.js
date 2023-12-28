@@ -28,7 +28,11 @@ const ReportSchema = new mongoose.Schema({
         default: Date.now,
     },
 });
-
+ReportSchema.pre(/^find/, function (next) {
+    this.find({ active: { $ne: false } }).select("-verifyToken -refreshToken");
+    this.populate("reporter");
+  next();
+});
 
 const ReportModel = mongoose.model("Report", ReportSchema);
 
