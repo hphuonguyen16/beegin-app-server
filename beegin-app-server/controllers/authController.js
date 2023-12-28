@@ -12,9 +12,9 @@ const signToken = (id, secret, expiresTime) => {
   });
 };
 
-const createAccessToken = (user, res) => {
+const createAccessToken = (user, res, expiresTime = "10000s") => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-    expiresIn: "10000s",
+    expiresIn: expiresTime,
   });
   const cookieOptions = {
     expires: new Date(Date.now() + 60 * 60 * 1000),
@@ -42,7 +42,7 @@ const createRefreshToken = async (user, res) => {
   const cookieOptionsRefresh = {
     expires: new Date(
       Date.now() +
-      process.env.JWT_COOKIE_REFRESH_TOKEN_EXPIRES_IN * 24 * 60 * 60 * 1000
+        process.env.JWT_COOKIE_REFRESH_TOKEN_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
     secure: false,
@@ -54,8 +54,13 @@ const createRefreshToken = async (user, res) => {
   res.cookie("refresh", refreshToken, cookieOptionsRefresh);
 };
 
-const createSendToken = async (user, statusCode, res) => {
-  const token = createAccessToken(user, res);
+const createSendToken = async (
+  user,
+  statusCode,
+  res,
+  expiresTime = "10000s"
+) => {
+  const token = createAccessToken(user, res, expiresTime);
   await createRefreshToken(user, res);
   // Remove password from output
   user.password = undefined;
@@ -141,6 +146,12 @@ exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   const user = await authService.login({ email, password });
   await createSendToken(user, 200, res);
+});
+
+exports.mobileLogin = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await authService.login({ email, password });
+  await createSendToken(user, 200, res, "10d");
 });
 
 exports.logout = (req, res) => {
