@@ -11,7 +11,7 @@ exports.setQueryParameters = (req, res, next) => {
 exports.setPagingComment = (req, res, next) => {
   // take 5 comments at a time
   if (!req.query.limit) req.query.limit = "10";
-  if (!req.query.sort) req.query.sort = "createdAt";
+  if (!req.query.sort) req.query.sort = "-createdAt";
   next();
 };
 

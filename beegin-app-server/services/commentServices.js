@@ -67,7 +67,6 @@ exports.createComment = (data) => {
             post
           );
         }
-        console.log(_);
         // populate user
         await comment.populate("user", "_id profile");
         resolve({
@@ -105,7 +104,6 @@ exports.getCommentsOfPost = (data, query) => {
             comment._id.toString(),
             user
           );
-          console.log(isLiked);
           comment.isLiked = isLiked.data;
           return comment;
         });
@@ -208,7 +206,6 @@ exports.likeComment = (commentId, userId) => {
         userId,
         commentId
       );
-      console.log(_);
       resolve({
         status: "success",
         data: commentLike,
