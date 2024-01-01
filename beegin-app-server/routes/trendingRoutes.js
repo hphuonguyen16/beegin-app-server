@@ -11,4 +11,8 @@ router
 router
   .route("/posts")
   .get(authController.protect, trendingController.getTrendingPosts);
+
+router
+  .route("/posts/me")
+  .get(authController.protect, trendingController.getTrendingPostsByUser);
 module.exports = router;

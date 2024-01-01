@@ -106,7 +106,6 @@ exports.lockOrUnlockAccount = (id) => {
           status: "Success",
         });
       }
-
     } catch (error) {
       reject(error);
     }
@@ -189,5 +188,20 @@ exports.getOverview = (year) => {
 };
 
 exports.getUserPreferences = (userId) => {
-  return new Promise(async (resolve, reject) => { });
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!userId) {
+        return reject(new AppError("Please enter user id", 400));
+      }
+
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        return reject(new AppError("User not found", 400));
+      }
+
+      return resolve(user.preferences);
+    } catch (err) {
+      return reject(err);
+    }
+  });
 };
