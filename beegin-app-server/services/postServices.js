@@ -370,7 +370,7 @@ exports.searchPosts = (searchText, query, media = null) => {
 exports.createBusinessPost = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const {
+      let {
         content,
         images,
         imageVideo,
