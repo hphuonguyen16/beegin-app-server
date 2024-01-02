@@ -20,6 +20,15 @@ exports.getTransactionsByBusiness = catchAsync(async (req, res, next) => {
 
   res.status(200).json(data);
 });
+
+exports.getTransactionsByMe = catchAsync(async (req, res, next) => {
+  const data = await TransactionServices.getTransactionByBusiness(
+    req.user.id,
+    req.query
+  );
+
+  res.status(200).json(data);
+});
 exports.createTransaction = catchAsync(async (req, res, next) => {
   process.env.TZ = "Asia/Ho_Chi_Minh";
   if (!req.body.user) req.body.user = req.user.id;

@@ -15,6 +15,13 @@ router
   );
 
 router
+  .route("/me")
+  .get(
+    authController.protect,
+    authController.restrictTo("admin", "business"),
+    transactionController.getTransactionsByMe
+  );
+router
   .route("/:id")
   .get(
     authController.protect,
