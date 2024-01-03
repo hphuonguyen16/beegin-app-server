@@ -12,6 +12,14 @@ const PostTransaction = require("./../models/postTransactionModel");
 const factory = require("./../controllers/handlerFactory");
 
 exports.getAllTransactions = factory.getAll(PostTransaction);
+
+exports.getRevenue = catchAsync(async (req, res, next) => {
+  const data = await TransactionServices.getRevenue();
+  res.status(200).json({
+    status: "success",
+    data: data,
+  });
+});
 exports.getTransactionsByBusiness = catchAsync(async (req, res, next) => {
   const data = await TransactionServices.getTransactionByBusiness(
     req.params.id,
