@@ -107,3 +107,27 @@ exports.getTransactionByBusiness = (id, query) => {
     }
   });
 };
+
+exports.getRevenue = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const revenue = await PostTransaction.aggregate([
+        {
+          $match: {
+            status: "success",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$amount" },
+          },
+        },
+      ]);
+
+      return resolve(revenue[0].totalAmount ?? 0);
+    } catch (error) {
+      return reject(err);
+    }
+  });
+};

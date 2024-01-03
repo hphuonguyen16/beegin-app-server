@@ -7,6 +7,9 @@ const authController = require("./../controllers/authController");
 router.get("/vnpay_ipn", transactionController.executeTransaction);
 router.get("/vnpay_return", transactionController.return);
 router
+  .route("/revenue")
+  .get(authController.protect, transactionController.getRevenue);
+router
   .route("/all")
   .get(
     authController.protect,
