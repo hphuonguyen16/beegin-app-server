@@ -25,7 +25,10 @@ router
 
 router.route("/me").get(postController.getAllPostsByMe);
 router.route("/getPostByUserId/:id").get(postController.getPostByUserId);
-
+router.route("/sharedPosts").get(postController.getSharedPostsByUser);
+router.route("/likedPosts").get(postController.getLikedPostsByUser);
+router.route("/sharedPosts/:id").get(postController.getSharedPostsByUser);
+router.route("/likedPosts/:id").get(postController.getLikedPostsByUser);
 router
   .route("/:id")
   .get(postController.getPostById)

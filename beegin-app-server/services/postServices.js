@@ -10,6 +10,7 @@ const Hashtag = require("./../models/hashtagModel");
 const feedServices = require("./feedServices");
 const notiServices = require("./notificationServices");
 const followServices = require("./followServices");
+const { post } = require("jquery");
 
 const checkDeletingPermission = async (postId, reject, userId) => {
   // admins always have permission to delete post
@@ -582,6 +583,84 @@ exports.getUsersSharingPost = (postId, userId, query) => {
       });
     } catch (err) {
       reject(err);
+    }
+  });
+};
+
+exports.getSharedPostsByUser = (userId, query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!userId) {
+        return reject(new AppError(`Please fill user id`, 400));
+      }
+      console.log(query);
+      const features = new APIFeatures(
+        Post.find({
+          user: userId,
+          parent: { $ne: null },
+          isActived: true,
+        }).lean(),
+        query
+      )
+        .paginate()
+        .sort();
+
+      const posts = await features.query;
+
+      const promises = posts.map(async (post) => {
+        const isLiked = (
+          await this.isPostLikedByUser(post._id.toString(), userId)
+        ).data;
+        return { ...post, isLiked };
+      });
+
+      const result = await Promise.all(promises);
+      resolve({
+        status: "success",
+        total: result.length ?? 0,
+        data: result,
+      });
+    } catch (err) {
+      return reject(err);
+    }
+  });
+};
+
+exports.getLikedPostsByUser = (userId, query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!userId) {
+        return reject(new AppError(`Please fill user id`, 400));
+      }
+      query.sort = "-createdAt";
+      const features = new APIFeatures(
+        LikePost.find({ user: userId }).populate("post").lean(),
+        query
+      )
+        .paginate()
+        .sort();
+
+      const likeposts = await features.query;
+
+      let posts = likeposts.map((post) => post.post);
+      // posts = posts.filter((post) => post.isActived === true);
+      posts = posts.filter(
+        (post) =>
+          post?.isActived !== false && !post?.parent?.isActived !== false
+      );
+      console.log(posts[0]);
+      const result = posts.map((post) => ({
+        ...post,
+        isLiked: true,
+      }));
+
+      resolve({
+        status: "success",
+        total: result.length ?? 0,
+        data: result,
+      });
+    } catch (err) {
+      return reject(err);
     }
   });
 };
