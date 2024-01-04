@@ -88,3 +88,18 @@ exports.getUsersSharingPost = catchAsync(async (req, res, next) => {
   );
   res.status(200).json(data);
 });
+
+exports.getSharedPostsByUser = catchAsync(async (req, res, next) => {
+  let userId = req.user.id;
+  if (req.params.id) userId = req.params.id;
+  const data = await postServices.getSharedPostsByUser(userId, req.query);
+
+  res.status(200).json(data);
+});
+
+exports.getLikedPostsByUser = catchAsync(async (req, res, next) => {
+  let userId = req.user.id;
+  if (req.params.id) userId = req.params.id;
+  const data = await postServices.getLikedPostsByUser(userId, req.query);
+  res.status(200).json(data);
+});
